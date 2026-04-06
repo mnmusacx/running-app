@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Running App — Mariano</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede9;
+  --text: #1a1a1a; --text2: #666; --text3: #999;
+  --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+  --radius: 10px; --radius-sm: 7px;
+  --blue: #378ADD; --green: #1D9E75; --orange: #EF9F27; --red: #D85A30;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e; --bg2: #2c2c2e; --bg3: #3a3a3c;
+    --text: #f2f2f7; --text2: #ababab; --text3: #666;
+    --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+  }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
+
+/* ── App shell ── */
+.app-nav { background: var(--bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0; padding: 0 1.5rem; position: sticky; top: 0; z-index: 50; }
+.app-logo { font-size: 15px; font-weight: 700; margin-right: 2rem; padding: 1rem 0; white-space: nowrap; }
+.app-logo span { color: var(--green); }
+.nav-tab { padding: 1rem 1.1rem; font-size: 14px; cursor: pointer; border: none; background: none; color: var(--text2); border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s; }
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--text); font-weight: 600; border-bottom: 2px solid var(--green); }
+.page { display: none; max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+.page.active { display: block; }
+
+/* ── Shared components ── */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 13px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border2); background: none; color: var(--text); transition: background 0.15s; white-space: nowrap; }
+.btn:hover { background: var(--bg2); }
+.btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+.btn-primary:hover { opacity: 0.85; }
+.btn-green { background: #25D366; color: #fff; border-color: #25D366; }
+.btn-green:hover { opacity: 0.88; }
+.btn-telegram { background: #229ED9; color: #fff; border-color: #229ED9; }
+.btn-telegram:hover { opacity: 0.88; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-danger { color: #c0392b; border-color: #c0392b33; }
+.btn-danger:hover { background: #c0392b11; }
+.card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; }
+.section-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 1.25rem; }
+.section-header h2 { font-size: 18px; font-weight: 600; }
+.section-header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.25rem; }
+@media(max-width:600px){ .metrics-grid { grid-template-columns: repeat(2,1fr); } }
+.metric-card { background: var(--bg2); border-radius: var(--radius-sm); padding: 0.875rem; }
+.metric-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.metric-value { font-size: 22px; font-weight: 600; }
+.metric-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.tab-bar { display: flex; gap: 0; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.sub-tab { padding: 8px 16px; font-size: 13px; cursor: pointer; border: none; background: none; color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.sub-tab.active { color: var(--text); font-weight: 600; border-bottom: 2px solid var(--text); }
+.sub-content { display: none; }
+.sub-content.active { display: block; }
+input, select, textarea { width: 100%; padding: 8px 10px; font-size: 14px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-family: inherit; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); }
+textarea { resize: vertical; min-height: 60px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:500px){ .form-grid { grid-template-columns: 1fr; } }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1/-1; }
+.form-group label { font-size: 12px; color: var(--text2); font-weight: 500; }
+
+/* ── Tracker badges ── */
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+.badge-easy     { background: #EAF3DE; color: #3B6D11; }
+.badge-tempo    { background: #FAEEDA; color: #854F0B; }
+.badge-interval { background: #FAECE7; color: #993C1D; }
+.badge-long     { background: #E6F1FB; color: #185FA5; }
+.badge-race     { background: #EEEDFE; color: #534AB7; }
+.badge-recovery { background: #F1EFE8; color: #5F5E5A; }
+
+/* ── Tracker table ── */
+.runs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.runs-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text2); padding: 6px 8px; border-bottom: 1px solid var(--border); letter-spacing: 0.05em; text-transform: uppercase; }
+.runs-table td { padding: 10px 8px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+.runs-table tbody tr:last-child td { border-bottom: none; }
+.runs-table tbody tr:hover td { background: var(--bg2); }
+.detail-panel { background: var(--bg2); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin: 4px 0 8px; font-size: 12px; }
+.detail-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 8px; }
+.detail-item .dl { color: var(--text2); font-size: 11px; }
+.detail-item .dv { color: var(--text); font-weight: 500; }
+.splits-row { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.split-chip { background: var(--bg); border: 0.5px solid var(--border2); border-radius: 4px; padding: 2px 7px; font-size: 11px; color: var(--text2); }
+.split-chip.best { border-color: var(--green); color: var(--green); }
+.zone-bar { display: flex; align-items: center; gap: 8px; margin: 3px 0; font-size: 11px; color: var(--text2); }
+.zone-fill { height: 5px; border-radius: 3px; }
+#chart-wrap { position: relative; width: 100%; height: 230px; }
+
+/* ── AI / scan ── */
+.ai-box { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem; font-size: 14px; line-height: 1.75; white-space: pre-wrap; }
+.thinking { display: flex; gap: 5px; align-items: center; padding: 1rem 0; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); animation: blink 1.2s infinite; }
+.dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3;transform:scale(.7)}40%{opacity:1;transform:scale(1)}}
+.upload-area { border: 2px dashed var(--border2); border-radius: var(--radius); padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+.upload-area:hover { border-color: var(--blue); background: #378ADD0a; }
+.upload-area input { display: none; }
+.preview-img { max-width: 100%; border-radius: var(--radius-sm); margin-top: 12px; max-height: 280px; object-fit: contain; }
+.info-box { background: #E6F1FB; border: 0.5px solid #85B7EB; border-radius: var(--radius-sm); padding: 8px 12px; font-size: 12px; color: #0C447C; line-height: 1.5; }
+
+/* ── Plan badges ── */
+.dbadge { font-size: 11px; padding: 2px 7px; border-radius: 99px; font-weight: 500; display: inline-block; white-space: nowrap; }
+.t-gym    { background: #FAEEDA; color: #854F0B; }
+.t-gymleg { background: #FAECE7; color: #993C1D; }
+.t-easy   { background: #EAF3DE; color: #3B6D11; }
+.t-tempo  { background: #E6F1FB; color: #185FA5; }
+.t-long   { background: #EEEDFE; color: #534AB7; }
+.t-rest   { background: #F1EFE8; color: #5F5E5A; }
+.t-race   { background: #FAECE7; color: #712B13; }
+.t-series { background: #FBEAF0; color: #993556; }
+
+/* ── Plan cards ── */
+.schema-box { background: var(--bg2); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+.schema-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 6px; margin-top: 10px; }
+.schema-day { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.sdlbl { font-size: 10px; color: var(--text2); font-weight: 600; }
+.sdpill { font-size: 10px; padding: 3px 5px; border-radius: 5px; font-weight: 500; text-align: center; width: 100%; }
+.race-banners { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.race-banner { flex: 1; min-width: 200px; border-radius: var(--radius-sm); padding: 10px 14px; display: flex; align-items: center; gap: 10px; border: 1px solid; }
+.phase-divider { display: flex; align-items: center; gap: 10px; margin: 1.5rem 0 0.75rem; }
+.phase-line { flex: 1; height: 0.5px; background: var(--border); }
+.phase-lbl { font-size: 11px; font-weight: 600; color: var(--text2); white-space: nowrap; letter-spacing: 0.04em; text-transform: uppercase; }
+.week-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+.week-header { display: flex; align-items: center; gap: 10px; padding: 11px 14px; cursor: pointer; user-select: none; }
+.week-header:hover { background: var(--bg2); }
+.wnum { font-size: 11px; font-weight: 600; color: var(--text2); min-width: 48px; }
+.wtitle { font-size: 14px; font-weight: 500; flex: 1; }
+.wmeta { display: flex; gap: 6px; align-items: center; }
+.pill { font-size: 11px; padding: 2px 7px; border-radius: 99px; font-weight: 500; }
+.pill-km { background: #E6F1FB; color: #185FA5; }
+.pill-race { background: #FAECE7; color: #712B13; }
+.pill-taper { background: #E1F5EE; color: #0F6E56; }
+.chev { font-size: 11px; color: var(--text3); transition: transform 0.2s; }
+.chev.open { transform: rotate(180deg); }
+.week-body { border-top: 0.5px solid var(--border); padding: 10px 14px; display: none; }
+.week-body.open { display: block; }
+.day-row { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-bottom: 0.5px solid var(--border); }
+.day-row:last-child { border-bottom: none; }
+.dlbl { font-size: 11px; font-weight: 600; color: var(--text2); min-width: 32px; padding-top: 3px; }
+.dtype { min-width: 76px; }
+.ddesc { font-size: 13px; flex: 1; line-height: 1.5; }
+.dkm { font-size: 12px; color: var(--text2); white-space: nowrap; padding-top: 3px; }
+.week-tip { background: var(--bg2); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 8px; font-size: 12px; color: var(--text2); line-height: 1.55; }
+.toggle-all { font-size: 12px; color: var(--text2); cursor: pointer; background: none; border: none; padding: 0; margin-bottom: 8px; }
+.toggle-all:hover { color: var(--text); }
+
+/* ── Modal ── */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; align-items: center; justify-content: center; padding: 1rem; }
+.modal { background: var(--bg); border-radius: var(--radius); padding: 1.5rem; width: min(540px,100%); max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+.code-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-family: monospace; font-size: 12px; margin: 6px 0; word-break: break-all; position: relative; }
+.copy-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer; color: var(--text2); }
+.step { display: flex; gap: 12px; margin-bottom: 1rem; }
+.step-num { background: var(--text); color: var(--bg); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.step-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.step-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+/* ── Today banner (tracker) ── */
+.today-banner { background: #EAF3DE; border: 1px solid #97C459; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 12px; }
+.today-banner.rest { background: var(--bg2); border-color: var(--border); }
+.today-icon { font-size: 22px; }
+.today-text { font-size: 13px; color: #27500A; font-weight: 500; }
+.today-sub { font-size: 12px; color: #3B6D11; margin-top: 2px; }
+.today-banner.rest .today-text { color: var(--text2); }
+.today-banner.rest .today-sub { color: var(--text3); }
+</style>
+</head>
+<body>
+
+<nav class="app-nav">
+  <div class="app-logo">🏃 Running<span>App</span></div>
+  <button class="nav-tab active" onclick="showPage('tracker')">Mis carreras</button>
+  <button class="nav-tab" onclick="showPage('plan')">Plan 21K</button>
+  <button class="nav-tab" onclick="showPage('notify')">Notificaciones</button>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     PAGE: TRACKER
+══════════════════════════════════════════ -->
+<div id="page-tracker" class="page active">
+  <div class="section-header">
+    <div>
+      <h2>Mis carreras</h2>
+      <p id="tracker-subtitle">Historial desde enero 2026</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="exportJSON()">Exportar datos</button>
+      <button class="btn btn-primary" onclick="openAddForm()">+ Nueva carrera</button>
+    </div>
+  </div>
+
+  <div id="today-banner"></div>
+
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="metric-label">Carreras</div><div class="metric-value" id="m-total">—</div></div>
+    <div class="metric-card"><div class="metric-label">Km totales</div><div class="metric-value" id="m-km">—</div></div>
+    <div class="metric-card"><div class="metric-label">Mejor pace</div><div class="metric-value" id="m-pace">—</div><div class="metric-sub">min/km</div></div>
+    <div class="metric-card"><div class="metric-label">Dist. máx.</div><div class="metric-value" id="m-max">—</div><div class="metric-sub">km</div></div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="sub-tab active" onclick="switchSub('tracker','log')">Historial</button>
+    <button class="sub-tab" onclick="switchSub('tracker','evo')">Evolución</button>
+    <button class="sub-tab" onclick="switchSub('tracker','scan')">Cargar desde foto</button>
+    <button class="sub-tab" onclick="switchSub('tracker','ai-plan')">Plan IA</button>
+  </div>
+
+  <div id="tracker-log" class="sub-content active"><div id="runs-container"></div></div>
+
+  <div id="tracker-evo" class="sub-content">
+    <div class="card">
+      <div style="display:flex;gap:10px;margin-bottom:1rem;align-items:center">
+        <select id="chart-metric" onchange="renderChart()" style="width:auto;font-size:13px">
+          <option value="pace">Pace (min/km)</option>
+          <option value="distance">Distancia (km)</option>
+          <option value="hr">FC media (bpm)</option>
+        </select>
+      </div>
+      <div id="chart-wrap"><canvas id="evoChart"></canvas></div>
+    </div>
+  </div>
+
+  <div id="tracker-scan" class="sub-content">
+    <div class="card" style="margin-bottom:1rem">
+      <div class="info-box" style="margin-bottom:1rem">Subí una captura de tu app (Mi Fitness, Strava, Garmin) y el asistente extrae los datos automáticamente.</div>
+      <div class="upload-area" onclick="document.getElementById('img-upload').click()" id="upload-zone">
+        <input type="file" id="img-upload" accept="image/*" onchange="handleImageUpload(event)" />
+        <div style="font-size:32px">📷</div>
+        <p style="margin-top:8px;color:var(--text2)">Tocá para subir captura de pantalla</p>
+      </div>
+      <div id="scan-preview"></div>
+    </div>
+    <div id="scan-output"></div>
+  </div>
+
+  <div id="tracker-ai-plan" class="sub-content">
+    <div class="card" style="margin-bottom:1rem">
+      <p style="font-size:14px;color:var(--text2);margin-bottom:1rem">Describí tu objetivo y el asistente genera un plan basado en tu historial real.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="plan-input" placeholder="Ej: quiero bajar de 50' en 10K, entreno 4 días" style="flex:1;min-width:180px" />
+        <button class="btn btn-primary" onclick="generateAIPlan()">Generar plan</button>
+      </div>
+    </div>
+    <div id="ai-plan-output"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: PLAN 21K
+══════════════════════════════════════════ -->
+<div id="page-plan" class="page">
+  <div class="section-header">
+    <div>
+      <h2>Plan 21K Buenos Aires</h2>
+      <p>20 semanas · 7 abr → 23 ago 2026 · 3 días running + gym mié/jue/vie</p>
+    </div>
+    <button class="btn btn-primary" onclick="exportICS()">📅 Exportar a Calendario</button>
+  </div>
+
+  <div class="schema-box">
+    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em">Estructura semanal tipo</div>
+    <div class="schema-grid">
+      <div class="schema-day"><span class="sdlbl">Lun</span><span class="sdpill t-easy">fácil</span></div>
+      <div class="schema-day"><span class="sdlbl">Mar</span><span class="sdpill t-rest">descanso</span></div>
+      <div class="schema-day"><span class="sdlbl">Mié</span><span class="sdpill t-gym">gym sup</span></div>
+      <div class="schema-day"><span class="sdlbl">Jue</span><span class="sdpill t-gymleg">gym piernas</span></div>
+      <div class="schema-day"><span class="sdlbl">Vie</span><span class="sdpill t-gym">gym sup</span><span class="sdpill t-tempo" style="margin-top:3px">tempo/series</span></div>
+      <div class="schema-day"><span class="sdlbl">Sáb</span><span class="sdpill t-rest">descanso</span></div>
+      <div class="schema-day"><span class="sdlbl">Dom</span><span class="sdpill t-long">larga</span></div>
+    </div>
+  </div>
+
+  <div class="race-banners">
+    <div class="race-banner" style="background:#EEEDFE;border-color:#AFA9EC">
+      <span style="font-size:20px">🏁</span>
+      <div><div style="font-size:13px;color:#3C3489;font-weight:600">15K Adizero · 7 jun 2026</div><div style="font-size:11px;color:#534AB7;margin-top:2px">Sem 9 · Test intermedio — salí a 6:05/km</div></div>
+    </div>
+    <div class="race-banner" style="background:#E1F5EE;border-color:#5DCAA5">
+      <span style="font-size:20px">🏆</span>
+      <div><div style="font-size:13px;color:#085041;font-weight:600">21K Buenos Aires · 23 ago 2026</div><div style="font-size:11px;color:#0F6E56;margin-top:2px">Sem 20 · Objetivo principal — pace objetivo 6:10/km</div></div>
+    </div>
+  </div>
+
+  <button class="toggle-all" onclick="toggleAll()">▼ Expandir / colapsar todo</button>
+  <div id="plan-weeks-container"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: NOTIFICACIONES
+══════════════════════════════════════════ -->
+<div id="page-notify" class="page">
+  <div class="section-header">
+    <div><h2>Notificaciones</h2><p>Configurá recordatorios para tus días de entrenamiento</p></div>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem">
+    <div style="font-size:15px;font-weight:600;margin-bottom:8px">📅 Google / Apple Calendar</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">La opción más simple. Exportá todos los entrenamientos como eventos de calendario. Importalo con doble clic y recibís las notificaciones nativas del celu.</p>
+    <button class="btn btn-primary" onclick="exportICS()">Descargar archivo .ics</button>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem">
+    <div style="font-size:15px;font-weight:600;margin-bottom:8px">✈ Bot de Telegram</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">Recibís un mensaje automático cada día que toca entrenar con el detalle de la sesión. Requiere crear un bot (5 min, gratis).</p>
+    <div class="form-grid" style="margin-bottom:12px">
+      <div class="form-group"><label>Token del bot (de BotFather)</label><input type="text" id="tg-token" placeholder="7123456789:AAF..." /></div>
+      <div class="form-group"><label>Tu Chat ID</label><input type="text" id="tg-chatid" placeholder="123456789" /></div>
+    </div>
+    <div class="info-box" style="margin-bottom:12px">
+      <strong>Cómo obtener el Chat ID:</strong> Mandá cualquier mensaje a tu bot nuevo, luego abrí en el browser:<br>
+      <code>https://api.telegram.org/botTOKEN/getUpdates</code> — buscá "id" dentro de "chat".
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-telegram" onclick="testTelegram()">Probar conexión</button>
+      <button class="btn btn-telegram" onclick="downloadTelegramScript()">Descargar script Python</button>
+    </div>
+    <div id="tg-result" style="margin-top:10px;font-size:13px"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:15px;font-weight:600;margin-bottom:8px">💬 WhatsApp via CallMeBot</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">Primero activá el servicio mandando <code>I allow callmebot to send me messages</code> al <strong>+34 644 59 74 74</strong> por WhatsApp.</p>
+    <div class="form-grid" style="margin-bottom:12px">
+      <div class="form-group"><label>Número (sin +, ej: 5491151234567)</label><input type="text" id="wa-phone" placeholder="5491151234567" /></div>
+      <div class="form-group"><label>API Key de CallMeBot</label><input type="text" id="wa-apikey" placeholder="tu apikey" /></div>
+    </div>
+    <button class="btn btn-green" onclick="downloadWAScript()">Descargar script Python</button>
+  </div>
+</div>
+
+<!-- Modal agregar/editar carrera -->
+<div class="overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+<div class="modal">
+  <div class="modal-header">
+    <h3 id="modal-title">Registrar carrera</h3>
+    <button class="btn btn-sm" onclick="closeModal()">✕</button>
+  </div>
+  <div class="form-grid">
+    <div class="form-group"><label>Fecha</label><input type="date" id="f-date" /></div>
+    <div class="form-group"><label>Tipo</label>
+      <select id="f-type">
+        <option value="easy">Rodaje fácil</option><option value="tempo">Tempo</option>
+        <option value="interval">Series / Intervalos</option><option value="long">Tirada larga</option>
+        <option value="recovery">Recuperación</option><option value="race">Carrera / Competencia</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Distancia (km)</label><input type="number" id="f-distance" placeholder="10.0" step="0.1" min="0" /></div>
+    <div class="form-group"><label>Tiempo total (hh:mm:ss)</label><input type="text" id="f-time" placeholder="00:55:00" /></div>
+    <div class="form-group"><label>FC media (bpm)</label><input type="number" id="f-hr" placeholder="150" /></div>
+    <div class="form-group"><label>FC máxima (bpm)</label><input type="number" id="f-hrmax" placeholder="175" /></div>
+    <div class="form-group"><label>Pace máximo</label><input type="text" id="f-pacemax" placeholder="5:57" /></div>
+    <div class="form-group"><label>Cadencia (pasos/min)</label><input type="number" id="f-cadence" placeholder="102" /></div>
+    <div class="form-group"><label>Calorías activas (kcal)</label><input type="number" id="f-kcal" placeholder="1026" /></div>
+    <div class="form-group"><label>RPE (1–10)</label><input type="number" id="f-rpe" placeholder="7" min="1" max="10" /></div>
+    <div class="form-group full"><label>Splits por km (separados por coma)</label><input type="text" id="f-splits" placeholder="6:14, 6:42, 6:10..." /></div>
+    <div class="form-group full"><label>Zonas cardíacas (minutos: aeróbico / anaeróbico / intensivo)</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <input type="number" id="f-z-aero" placeholder="Aeróbico" />
+        <input type="number" id="f-z-anaero" placeholder="Anaeróbico" />
+        <input type="number" id="f-z-intense" placeholder="Intensivo" />
+      </div>
+    </div>
+    <div class="form-group full"><label>Notas</label><textarea id="f-notes" placeholder="Cómo te sentiste, ruta, condiciones..."></textarea></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:1.25rem">
+    <button class="btn" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveRun()">Guardar carrera</button>
+  </div>
+</div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   SHARED UTILS
+══════════════════════════════════════════ */
+function parseTime(t) {
+  if (!t) return null;
+  const p = String(t).trim().split(':').map(Number);
+  if (p.length===3) return p[0]*3600+p[1]*60+p[2];
+  if (p.length===2) return p[0]*60+p[1];
+  return null;
+}
+function paceRaw(dist, secs) { return (!dist||!secs) ? null : secs/dist/60; }
+function paceStr(raw) {
+  if (!raw && raw!==0) return '—';
+  const m=Math.floor(raw), s=Math.round((raw-m)*60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function pad(n){ return String(n).padStart(2,'0'); }
+function fmtDate(d){ return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate()); }
+
+/* ══════════════════════════════════════════
+   NAV
+══════════════════════════════════════════ */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (id==='plan') setTimeout(()=>{ if(!planRendered) renderPlan(); },50);
+  if (id==='tracker') setTimeout(renderChart,50);
+}
+function switchSub(page, sub) {
+  const prefix = page+'-';
+  document.querySelectorAll(`[id^="${prefix}"]`).forEach(el => {
+    if (el.classList.contains('sub-content')) el.classList.remove('active');
+  });
+  document.querySelectorAll(`#page-${page} .sub-tab`).forEach(t=>t.classList.remove('active'));
+  document.getElementById(prefix+sub).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (sub==='evo') setTimeout(renderChart,50);
+}
+
+/* ══════════════════════════════════════════
+   TRACKER DATA
+══════════════════════════════════════════ */
+const STORAGE_KEY = 'mariano_running_v1';
+const INITIAL_DATA = [
+  { date:'2026-04-05', type:'long', distance:15.00, time:'1:36:00', hr:148, hrmax:175, pacemax:'5:57', cadence:102, kcal:1026, rpe:7,
+    splits:['6:14','6:42','6:10','6:19','6:37','5:43','6:22','6:58','6:35','6:17'],
+    zones:{aero:57,anaero:33,intense:4}, notes:'Ruta costanera Olivos → Acassuso. 5km en 32:02, 10km en 1:03:57.' },
+  { date:'2026-03-15', type:'race',  distance:10.03, time:'57:01' },
+  { date:'2026-03-11', type:'easy',  distance:5.01,  time:'24:56' },
+  { date:'2026-03-05', type:'easy',  distance:5.80,  time:'37:57' },
+  { date:'2026-03-04', type:'easy',  distance:7.13,  time:'45:05' },
+  { date:'2026-02-24', type:'race',  distance:10.01, time:'57:04' },
+  { date:'2026-02-19', type:'easy',  distance:5.00,  time:'26:56' },
+  { date:'2026-02-09', type:'long',  distance:13.50, time:'1:22:47' },
+  { date:'2026-03-02', type:'tempo', distance:11.74, time:'1:10:03' },
+  { date:'2026-01-29', type:'easy',  distance:3.52,  time:'24:36' },
+  { date:'2026-01-27', type:'race',  distance:10.00, time:'55:49' },
+  { date:'2026-01-24', type:'easy',  distance:3.37,  time:'19:20' },
+  { date:'2026-01-23', type:'easy',  distance:3.12,  time:'19:00' },
+  { date:'2026-01-20', type:'easy',  distance:9.05,  time:'50:58' },
+  { date:'2026-01-16', type:'easy',  distance:7.32,  time:'43:29' },
+  { date:'2026-01-12', type:'easy',  distance:7.59,  time:'43:36' },
+  { date:'2026-01-10', type:'easy',  distance:2.18,  time:'12:58' },
+];
+function enrich(r) {
+  const secs = parseTime(r.time);
+  return { hr:'',hrmax:'',pacemax:'',cadence:'',kcal:'',rpe:'',splits:[],zones:null,notes:'', ...r, pace:paceRaw(r.distance,secs) };
+}
+let runs = [];
+let chartInstance = null;
+let editIndex = null;
+let expandedRows = new Set();
+
+function loadRuns() {
+  try { const s=localStorage.getItem(STORAGE_KEY); if(s){ runs=JSON.parse(s); } else { runs=INITIAL_DATA.map(enrich); saveRuns(); } }
+  catch(e){ runs=INITIAL_DATA.map(enrich); }
+  renderTracker();
+  renderTodayBanner();
+}
+function saveRuns(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(runs)); }catch(e){} }
+function exportJSON(){
+  const b=new Blob([JSON.stringify(runs,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='running_backup.json'; a.click();
+}
+
+const TYPE_L = { easy:'Rodaje fácil',tempo:'Tempo',interval:'Series',long:'Tirada larga',recovery:'Recuperación',race:'Carrera' };
+const TYPE_B = { easy:'badge-easy',tempo:'badge-tempo',interval:'badge-interval',long:'badge-long',recovery:'badge-recovery',race:'badge-race' };
+
+function renderTracker(){ renderMetrics(); renderLog(); }
+function renderMetrics(){
+  const km=runs.reduce((a,r)=>a+(parseFloat(r.distance)||0),0);
+  const bp=runs.filter(r=>r.pace).reduce((b,r)=>b===null||r.pace<b?r.pace:b,null);
+  const mx=runs.reduce((a,r)=>Math.max(a,parseFloat(r.distance)||0),0);
+  document.getElementById('m-total').textContent=runs.length;
+  document.getElementById('m-km').textContent=km.toFixed(1);
+  document.getElementById('m-pace').textContent=paceStr(bp);
+  document.getElementById('m-max').textContent=mx.toFixed(1);
+}
+
+function toggleDetail(i){ expandedRows.has(i)?expandedRows.delete(i):expandedRows.add(i); renderLog(); }
+
+function renderLog(){
+  const c=document.getElementById('runs-container');
+  if(!runs.length){ c.innerHTML=`<div style="text-align:center;padding:3rem;color:var(--text2)">Sin carreras registradas</div>`; return; }
+  const sorted=[...runs].map((r,i)=>({...r,_i:i})).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  let html=`<div class="card" style="overflow-x:auto"><table class="runs-table"><thead><tr>
+    <th>Fecha</th><th>Tipo</th><th>Dist.</th><th>Tiempo</th><th>Pace</th><th>FC</th><th>RPE</th><th></th>
+  </tr></thead><tbody>`;
+  sorted.forEach(r=>{
+    const date=r.date?new Date(r.date+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'2-digit'}):'—';
+    const hasD=r.splits?.length||r.zones||r.hrmax||r.cadence||r.kcal||r.notes;
+    const exp=expandedRows.has(r._i);
+    html+=`<tr>
+      <td style="color:var(--text2);white-space:nowrap">${date}</td>
+      <td><span class="badge ${TYPE_B[r.type]||'badge-easy'}">${TYPE_L[r.type]||r.type}</span></td>
+      <td><strong>${parseFloat(r.distance).toFixed(1)}</strong> km</td>
+      <td style="color:var(--text2)">${r.time||'—'}</td>
+      <td style="font-weight:600">${paceStr(r.pace)}<span style="font-size:10px;color:var(--text3);margin-left:2px">'/km</span></td>
+      <td style="color:var(--text2)">${r.hr||'—'}</td>
+      <td style="color:var(--text2)">${r.rpe||'—'}</td>
+      <td style="white-space:nowrap">
+        ${hasD?`<button class="btn btn-sm" onclick="toggleDetail(${r._i})">${exp?'▲':'▼'}</button> `:''}
+        <button class="btn btn-sm" onclick="editRun(${r._i})">editar</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteRun(${r._i})" style="margin-left:4px">✕</button>
+      </td></tr>`;
+    if(exp&&hasD){
+      html+=`<tr><td colspan="8" style="padding:0 8px 12px"><div class="detail-panel">`;
+      if(r.hrmax||r.pacemax||r.cadence||r.kcal){
+        html+=`<div class="detail-grid">`;
+        if(r.hrmax) html+=`<div class="detail-item"><div class="dl">FC máxima</div><div class="dv">${r.hrmax} bpm</div></div>`;
+        if(r.pacemax) html+=`<div class="detail-item"><div class="dl">Pace máx.</div><div class="dv">${r.pacemax} '/km</div></div>`;
+        if(r.cadence) html+=`<div class="detail-item"><div class="dl">Cadencia</div><div class="dv">${r.cadence} p/min</div></div>`;
+        if(r.kcal) html+=`<div class="detail-item"><div class="dl">Kcal activas</div><div class="dv">${r.kcal}</div></div>`;
+        html+=`</div>`;
+      }
+      if(r.zones){
+        const tot=(r.zones.aero||0)+(r.zones.anaero||0)+(r.zones.intense||0);
+        html+=`<div style="font-size:11px;font-weight:600;color:var(--text2);margin:8px 0 4px">Zonas</div>`;
+        if(r.zones.intense) html+=`<div class="zone-bar"><span style="min-width:80px">Intensivo</span><div class="zone-fill" style="width:${(r.zones.intense/tot*100).toFixed(0)}px;background:var(--red)"></div><span>${r.zones.intense}min</span></div>`;
+        if(r.zones.anaero)  html+=`<div class="zone-bar"><span style="min-width:80px">Anaeróbico</span><div class="zone-fill" style="width:${(r.zones.anaero/tot*100).toFixed(0)}px;background:var(--orange)"></div><span>${r.zones.anaero}min</span></div>`;
+        if(r.zones.aero)    html+=`<div class="zone-bar"><span style="min-width:80px">Aeróbico</span><div class="zone-fill" style="width:${(r.zones.aero/tot*100).toFixed(0)}px;background:var(--green)"></div><span>${r.zones.aero}min</span></div>`;
+      }
+      if(r.splits?.length){
+        const minS=Math.min(...r.splits.map(s=>parseTime(s)));
+        html+=`<div style="font-size:11px;font-weight:600;color:var(--text2);margin:8px 0 4px">Splits</div><div class="splits-row">`;
+        r.splits.forEach((s,i)=>{ html+=`<div class="split-chip ${parseTime(s)===minS?'best':''}"><span style="color:var(--text3)">${i+1}</span> ${s}</div>`; });
+        html+=`</div>`;
+      }
+      if(r.notes) html+=`<div style="margin-top:8px;font-size:12px;color:var(--text2);font-style:italic">${r.notes}</div>`;
+      html+=`</div></td></tr>`;
+    }
+  });
+  html+='</tbody></table></div>';
+  c.innerHTML=html;
+}
+
+function renderChart(){
+  const metric=document.getElementById('chart-metric').value;
+  const sorted=[...runs].filter(r=>r.date).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(chartInstance){chartInstance.destroy();chartInstance=null;}
+  if(sorted.length<2) return;
+  const labels=sorted.map(r=>new Date(r.date+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'short'}));
+  let data,color;
+  if(metric==='pace'){data=sorted.map(r=>r.pace?+r.pace.toFixed(3):null);color='#378ADD';}
+  else if(metric==='hr'){data=sorted.map(r=>r.hr?parseInt(r.hr):null);color='#D85A30';}
+  else{data=sorted.map(r=>parseFloat(r.distance)||null);color='#1D9E75';}
+  chartInstance=new Chart(document.getElementById('evoChart'),{
+    type:'line',
+    data:{labels,datasets:[{data,borderColor:color,backgroundColor:color+'22',fill:true,tension:.35,pointRadius:5,spanGaps:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(128,128,128,.1)'},ticks:{font:{size:11},maxRotation:45,autoSkip:true,maxTicksLimit:10}},
+        y:{grid:{color:'rgba(128,128,128,.1)'},ticks:{font:{size:11},callback:v=>metric==='pace'?paceStr(v):metric==='hr'?v+' bpm':v.toFixed(1)+'km'}}
+      }
+    }
+  });
+}
+
+/* ── Today banner: checks plan for today's session ── */
+function renderTodayBanner(){
+  const banner=document.getElementById('today-banner');
+  const today=new Date().toISOString().split('T')[0];
+  const START=new Date('2026-04-07');
+  const diffDays=Math.floor((new Date(today)-START)/(1000*60*60*24));
+  if(diffDays<0||diffDays>=19*7){ banner.innerHTML=''; return; }
+  const weekIdx=Math.floor(diffDays/7);
+  const dayIdx=diffDays%7;
+  const week=PLAN_WEEKS[weekIdx];
+  if(!week){ banner.innerHTML=''; return; }
+  const day=week.days[dayIdx];
+  if(!day){ banner.innerHTML=''; return; }
+  const isRest=day.type==='rest';
+  const typeEmoji={easy:'🟢',tempo:'🔵',long:'🟣',gym:'🏋',gymleg:'🦵',series:'🩷',race:'🏁',rest:'😴'};
+  const typeNames={easy:'Rodaje fácil',tempo:'Tempo',long:'Tirada larga',gym:'Gym — tren superior',gymleg:'Gym — piernas',series:'Series',race:'¡CARRERA!',rest:'Descanso'};
+  banner.innerHTML=`<div class="today-banner${isRest?' rest':''}">
+    <div class="today-icon">${typeEmoji[day.type]||'⚪'}</div>
+    <div>
+      <div class="today-text">Hoy: ${typeNames[day.type]||day.type}${day.km?' — '+day.km:''}</div>
+      <div class="today-sub">${isRest?'Recuperación y descanso activo':day.desc.slice(0,90)+'...'}</div>
+    </div>
+  </div>`;
+}
+
+/* ── Form ── */
+function openAddForm(){
+  editIndex=null;
+  document.getElementById('modal-title').textContent='Registrar carrera';
+  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  ['f-distance','f-time','f-hr','f-hrmax','f-pacemax','f-cadence','f-kcal','f-rpe','f-splits','f-z-aero','f-z-anaero','f-z-intense','f-notes']
+    .forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-type').selectedIndex=0;
+  document.getElementById('modal-overlay').style.display='flex';
+}
+function editRun(i){
+  editIndex=i; const r=runs[i];
+  document.getElementById('modal-title').textContent='Editar carrera';
+  document.getElementById('f-date').value=r.date||'';
+  document.getElementById('f-type').value=r.type||'easy';
+  document.getElementById('f-distance').value=r.distance||'';
+  document.getElementById('f-time').value=r.time||'';
+  document.getElementById('f-hr').value=r.hr||'';
+  document.getElementById('f-hrmax').value=r.hrmax||'';
+  document.getElementById('f-pacemax').value=r.pacemax||'';
+  document.getElementById('f-cadence').value=r.cadence||'';
+  document.getElementById('f-kcal').value=r.kcal||'';
+  document.getElementById('f-rpe').value=r.rpe||'';
+  document.getElementById('f-splits').value=(r.splits||[]).join(', ');
+  document.getElementById('f-z-aero').value=r.zones?.aero||'';
+  document.getElementById('f-z-anaero').value=r.zones?.anaero||'';
+  document.getElementById('f-z-intense').value=r.zones?.intense||'';
+  document.getElementById('f-notes').value=r.notes||'';
+  document.getElementById('modal-overlay').style.display='flex';
+}
+function closeModal(){ document.getElementById('modal-overlay').style.display='none'; }
+function saveRun(){
+  const dist=parseFloat(document.getElementById('f-distance').value);
+  if(!dist){alert('Ingresá la distancia');return;}
+  const timeStr=document.getElementById('f-time').value.trim();
+  const splits=document.getElementById('f-splits').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const za=parseInt(document.getElementById('f-z-aero').value)||0;
+  const zn=parseInt(document.getElementById('f-z-anaero').value)||0;
+  const zi=parseInt(document.getElementById('f-z-intense').value)||0;
+  const run={
+    date:document.getElementById('f-date').value,type:document.getElementById('f-type').value,
+    distance:dist,time:timeStr,hr:document.getElementById('f-hr').value||'',
+    hrmax:document.getElementById('f-hrmax').value||'',pacemax:document.getElementById('f-pacemax').value||'',
+    cadence:document.getElementById('f-cadence').value||'',kcal:document.getElementById('f-kcal').value||'',
+    rpe:document.getElementById('f-rpe').value||'',splits,zones:(za||zn||zi)?{aero:za,anaero:zn,intense:zi}:null,
+    notes:document.getElementById('f-notes').value||'',pace:paceRaw(dist,parseTime(timeStr))
+  };
+  if(editIndex!==null) runs[editIndex]=run; else runs.push(run);
+  saveRuns(); renderTracker(); closeModal();
+}
+function deleteRun(i){ if(!confirm('¿Eliminar?'))return; runs.splice(i,1); saveRuns(); renderTracker(); }
+
+/* ── Scan ── */
+let scanB64=null;
+function handleImageUpload(e){
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    scanB64=ev.target.result.split(',')[1];
+    document.getElementById('scan-preview').innerHTML=`<img src="${ev.target.result}" class="preview-img" /><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-primary" onclick="scanImage()">Extraer datos</button><button class="btn" onclick="clearScan()">Limpiar</button></div>`;
+  };
+  reader.readAsDataURL(file);
+}
+function clearScan(){ scanB64=null; document.getElementById('scan-preview').innerHTML=''; document.getElementById('scan-output').innerHTML=''; document.getElementById('img-upload').value=''; }
+async function scanImage(){
+  if(!scanB64)return;
+  const out=document.getElementById('scan-output');
+  out.innerHTML=`<div class="card"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:8px;font-size:13px;color:var(--text2)">Analizando...</span></div></div>`;
+  const apiKey=prompt('Anthropic API key:'); if(!apiKey){out.innerHTML='';return;}
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
+        system:`Extraés datos de capturas de apps de running. Respondés SOLO con JSON válido, sin texto ni markdown:\n{"date":"YYYY-MM-DD","distance":km,"time":"hh:mm:ss","hr":bpm_o_null,"hrmax":bpm_o_null,"paceAvg":"m:ss_o_null","paceMax":"m:ss_o_null","cadence":num_o_null,"kcal":num_o_null,"splits":[],"zones":{"aero":min,"anaero":min,"intense":min}_o_null,"type":"easy|tempo|interval|long|race|recovery"}`,
+        messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:scanB64}},{type:'text',text:'Extraé todos los datos de esta captura de running. Solo JSON.'}]}]
+      })
+    });
+    const data=await resp.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'{}';
+    const ex=JSON.parse(text.replace(/```json?|```/g,''));
+    const typeNames={easy:'Rodaje fácil',tempo:'Tempo',interval:'Series',long:'Tirada larga',race:'Carrera',recovery:'Recuperación'};
+    out.innerHTML=`<div class="card">
+      <div style="font-size:15px;font-weight:600;margin-bottom:1rem">Datos extraídos — confirmá y guardá</div>
+      <div class="detail-grid" style="margin-bottom:1rem">
+        ${ex.date?`<div class="detail-item"><div class="dl">Fecha</div><div class="dv">${ex.date}</div></div>`:''}
+        ${ex.distance?`<div class="detail-item"><div class="dl">Distancia</div><div class="dv">${ex.distance} km</div></div>`:''}
+        ${ex.time?`<div class="detail-item"><div class="dl">Tiempo</div><div class="dv">${ex.time}</div></div>`:''}
+        ${ex.paceAvg?`<div class="detail-item"><div class="dl">Pace medio</div><div class="dv">${ex.paceAvg} '/km</div></div>`:''}
+        ${ex.hr?`<div class="detail-item"><div class="dl">FC media</div><div class="dv">${ex.hr} bpm</div></div>`:''}
+        ${ex.hrmax?`<div class="detail-item"><div class="dl">FC máxima</div><div class="dv">${ex.hrmax} bpm</div></div>`:''}
+        ${ex.cadence?`<div class="detail-item"><div class="dl">Cadencia</div><div class="dv">${ex.cadence} p/min</div></div>`:''}
+        ${ex.kcal?`<div class="detail-item"><div class="dl">Kcal</div><div class="dv">${ex.kcal}</div></div>`:''}
+        ${ex.type?`<div class="detail-item"><div class="dl">Tipo detectado</div><div class="dv">${typeNames[ex.type]||ex.type}</div></div>`:''}
+      </div>
+      ${ex.splits?.length?`<div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">Splits</div><div class="splits-row">${ex.splits.map((s,i)=>`<div class="split-chip"><span style="color:var(--text3)">${i+1}</span> ${s}</div>`).join('')}</div>`:''}
+      <div style="margin-top:1rem;display:flex;gap:8px">
+        <button class="btn btn-primary" onclick='confirmScan(${JSON.stringify(JSON.stringify(ex))})'>Guardar carrera</button>
+        <button class="btn" onclick="clearScan()">Descartar</button>
+      </div></div>`;
+  }catch(e){ out.innerHTML=`<div class="card" style="color:var(--red)">Error: ${e.message}</div>`; }
+}
+function confirmScan(jsonStr){
+  const ex=JSON.parse(jsonStr);
+  const run={date:ex.date||new Date().toISOString().split('T')[0],type:ex.type||'easy',
+    distance:parseFloat(ex.distance)||0,time:ex.time||'',hr:ex.hr||'',hrmax:ex.hrmax||'',
+    pacemax:ex.paceMax||'',cadence:ex.cadence||'',kcal:ex.kcal||'',rpe:'',
+    splits:ex.splits||[],zones:ex.zones||null,notes:'',pace:paceRaw(parseFloat(ex.distance),parseTime(ex.time))};
+  runs.push(run); saveRuns(); renderTracker(); clearScan(); switchSub('tracker','log');
+  document.querySelectorAll('#page-tracker .sub-tab')[0].click();
+  alert('Carrera guardada.');
+}
+
+/* ── AI Plan ── */
+async function generateAIPlan(){
+  const input=document.getElementById('plan-input').value.trim();
+  if(!input){alert('Describí tu objetivo');return;}
+  const out=document.getElementById('ai-plan-output');
+  out.innerHTML=`<div class="card"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:8px;font-size:13px;color:var(--text2)">Generando plan...</span></div></div>`;
+  const apiKey=prompt('Anthropic API key:'); if(!apiKey){out.innerHTML='';return;}
+  const totalKm=runs.reduce((a,r)=>a+(parseFloat(r.distance)||0),0).toFixed(1);
+  const bp=runs.filter(r=>r.pace).reduce((b,r)=>b===null||r.pace<b?r.pace:b,null);
+  const summary=`Mariano, 33 años, 1.95m/81kg. ${runs.length} carreras registradas, ${totalKm} km totales. Mejor pace: ${paceStr(bp)} min/km. Objetivo: 21K Buenos Aires 23/08/2026.`;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:'Coach de running experto. Respondés en español, conciso, sin markdown con asteriscos.',
+        messages:[{role:'user',content:`${summary}\nObjetivo: "${input}"\nPlan 4 semanas, específico y práctico.`}]
+      })
+    });
+    const data=await resp.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'Error.';
+    out.innerHTML=`<div class="ai-box">${text}</div>`;
+  }catch(e){ out.innerHTML=`<div class="card" style="color:var(--red)">Error: ${e.message}</div>`; }
+}
+
+/* ══════════════════════════════════════════
+   PLAN 21K DATA
+══════════════════════════════════════════ */
+const PLAN_START = new Date('2026-04-07');
+const PLAN_WEEKS = [
+  { n:1,phase:'base',title:'Base — arranque',km:26,tip:'Semana de calibración. El jueves no corrés: el gym de piernas ya es suficiente estímulo.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 8 km a 6:30–7:00/km. FC por debajo de 145.',km:'8 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — tren superior + core.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas completo. Sin running.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: rodaje fácil — 8 km a 6:30/km.',km:'8 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada larga — 10 km a 6:45/km.',km:'10 km',run:true},
+  ]},
+  { n:2,phase:'base',title:'Consolidación',km:29,tip:'Si el viernes las piernas están muy cargadas del jueves, reducí el tempo a fácil.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 9 km a 6:30/km.',km:'9 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — tren superior + core.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas. Sin running.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: tempo suave — 8 km con 4 km a 5:50/km.',km:'8 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada larga — 12 km a 6:40/km.',km:'12 km',run:true},
+  ]},
+  { n:3,phase:'base',title:'Primer pico de volumen',km:32,tip:'La tirada larga del domingo es el entrenamiento más importante de la semana.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 10 km a 6:30/km.',km:'10 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso activo.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — tren superior + core.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas. Sin running.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: tempo — 9 km con 5 km a 5:45/km.',km:'9 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada larga — 13 km a 6:30/km.',km:'13 km',run:true},
+  ]},
+  { n:4,phase:'base',title:'Semana de descarga',km:19,tip:'Descarga obligatoria. El gym también baja. La adaptación ocurre en el descanso.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje suave — 7 km a 7:00/km.',km:'7 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — liviano, tren superior.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas moderado (50–60% carga).',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior liviano. Tarde/noche: rodaje suave — 5 km.',km:'5 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada corta — 7 km muy suave.',km:'7 km',run:true},
+  ]},
+  { n:5,phase:'build',title:'Construcción — arranque',km:32,tip:'El viernes introducís las primeras series. Hacélas tarde/noche con las piernas recuperadas.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 10 km a 6:20/km.',km:'10 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — tren superior + core.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas. Sin running.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: series — 5×1000m a 5:15/km con 90 seg pausa.',km:'9 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada larga — 13 km a 6:25/km.',km:'13 km',run:true},
+  ]},
+  { n:6,phase:'build',title:'Volumen en aumento',km:34,tip:'Los 15 km del domingo son tu distancia máxima hasta ahora. Llevá gel o isotónico.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 10 km a 6:20/km.',km:'10 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — tren superior + core.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas. Sin running.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: tempo — 9 km con 5 km a 5:40/km.',km:'9 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada larga — 15 km a 6:20/km. Nuevo récord de distancia.',km:'15 km',run:true},
+  ]},
+  { n:7,phase:'build',title:'Series más largas',km:35,tip:'Consistencia entre repeticiones: si la última está mucho más lenta que la primera, arrancaste muy rápido.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 10 km a 6:20/km.',km:'10 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — tren superior + core.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas. Sin running.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: series — 6×1000m a 5:10/km con 90 seg pausa.',km:'11 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada larga — 14 km a 6:20/km.',km:'14 km',run:true},
+  ]},
+  { n:8,phase:'build',title:'Descarga pre-15K Adizero',km:19,tip:'Taper para el Adizero. Gym de piernas moderado el jueves. Viernes y sábado: descanso completo.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje suave — 7 km a 6:45/km.',km:'7 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — superior liviano.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas moderado (60% carga).',km:null,run:false},
+    {d:'Vie',type:'rest',badge:'t-rest',desc:'Descanso completo. Hidratación, sueño.',km:null,run:false},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso. Carbohidratos en la cena.',km:null,run:false},
+    {d:'Dom',type:'race',badge:'t-race',desc:'15K ADIZERO — Salí a 6:05–6:10/km. Es un test. Terminá con reservas.',km:'15 km',run:true},
+  ]},
+  { n:9,phase:'build2',title:'Recuperación post-15K',km:22,tip:'Al menos 4 días de recuperación real. El gym de piernas del jueves va muy suave.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Trote suave — 8 km a 7:00/km.',km:'8 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — solo tren superior.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas muy suave (40–50% carga).',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: rodaje fácil — 6 km.',km:'6 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada suave — 8 km. Reactivación.',km:'8 km',run:true},
+  ]},
+  { n:10,phase:'build2',title:'Retomada con fuerza',km:34,tip:'Usá el resultado del Adizero para calibrar tus ritmos de entrenamiento.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 10 km a 6:20/km.',km:'10 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — tren superior + core.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas. Sin running.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: series — 6×1000m a 5:10/km.',km:'11 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada larga — 13 km a 6:15/km.',km:'13 km',run:true},
+  ]},
+  { n:11,phase:'build2',title:'Distancia récord — 17 km',km:37,tip:'17 km es tu nuevo récord personal. Gel o isotónico a partir del km 10. Comé bien el sábado.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 10 km a 6:20/km.',km:'10 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — tren superior + core.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas. Sin running.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: tempo — 10 km con 6 km a 5:35/km.',km:'10 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso. Cena con carbohidratos.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada larga — 17 km a 6:20/km.',km:'17 km',run:true},
+  ]},
+  { n:12,phase:'build2',title:'Descarga',km:21,tip:'Segunda descarga. El gym también baja. Elongá bien después de cada sesión.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje suave — 8 km a 6:50/km.',km:'8 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — superior liviano.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas moderado (60%).',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: rodaje fácil — 5 km.',km:'5 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada corta — 8 km suave.',km:'8 km',run:true},
+  ]},
+  { n:13,phase:'peak',title:'Pico — arranque',km:38,tip:'Fase de pico: mayor volumen del plan. Nutrición e hidratación son tan importantes como el entrenamiento.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 11 km a 6:15/km.',km:'11 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — tren superior + core.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas. Sin running.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: series largas — 4×2000m a 5:20/km con 2 min pausa.',km:'12 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada larga — 15 km a 6:15/km.',km:'15 km',run:true},
+  ]},
+  { n:14,phase:'peak',title:'Volumen máximo',km:40,tip:'Semana de mayor volumen. Después de esta arranca la bajada hacia el 23 de agosto.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 11 km a 6:15/km.',km:'11 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — tren superior + core.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas. Sin running.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior. Tarde/noche: tempo largo — 12 km con 8 km a 5:40/km.',km:'12 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada larga — 17 km a 6:15/km.',km:'17 km',run:true},
+  ]},
+  { n:15,phase:'peak',title:'Simulacro de ritmo de carrera',km:37,tip:'El viernes es el entrenamiento más importante del plan: 14 km sostenidos a ritmo objetivo (6:10–6:15/km).',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 10 km a 6:20/km.',km:'10 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — superior liviano.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas moderado (70%).',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior liviano. Tarde/noche: simulacro — 14 km a 6:10–6:15/km sostenido.',km:'14 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada — 13 km a 6:20/km.',km:'13 km',run:true},
+  ]},
+  { n:16,phase:'peak',title:'Descarga pre-taper',km:22,tip:'Normal sentirse lento: es señal de que entrenaste bien.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje suave — 8 km a 6:50/km.',km:'8 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — superior muy liviano.',km:null,run:false},
+    {d:'Jue',type:'gymleg',badge:'t-gymleg',desc:'Gym mañana — piernas suave (50%).',km:null,run:false},
+    {d:'Vie',type:'rest',badge:'t-rest',desc:'Descanso. Sin running el viernes esta semana.',km:null,run:false},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada — 14 km a 6:20/km.',km:'14 km',run:true},
+  ]},
+  { n:17,phase:'taper',title:'Taper — semana 1',km:28,tip:'Taper: volumen baja, intensidad se mantiene. Gym de piernas suspendido las últimas 3 semanas.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 10 km a 6:20/km.',km:'10 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — solo superior, liviano.',km:null,run:false},
+    {d:'Jue',type:'rest',badge:'t-rest',desc:'Descanso. Gym de piernas suspendido.',km:null,run:false},
+    {d:'Vie',type:'gym',badge:'t-gym',desc:'Gym mañana — superior liviano. Tarde/noche: tempo corto — 8 km con 5 km a 5:50/km.',km:'8 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'long',badge:'t-long',desc:'Tirada — 10 km a 6:20/km.',km:'10 km',run:true},
+  ]},
+  { n:18,phase:'taper',title:'Taper — semana 2',km:20,tip:'Dos semanas para la carrera. Empezá a cargar carbohidratos desde el jueves de la semana siguiente.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 8 km a 6:20/km.',km:'8 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'gym',badge:'t-gym',desc:'Gym mañana — superior muy liviano.',km:null,run:false},
+    {d:'Jue',type:'rest',badge:'t-rest',desc:'Descanso. Sin gym de piernas.',km:null,run:false},
+    {d:'Vie',type:'rest',badge:'t-rest',desc:'Descanso o trote muy suave 20 min.',km:'~3 km',run:false},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Dom',type:'easy',badge:'t-easy',desc:'Rodaje suave — 9 km a 6:30/km.',km:'9 km',run:true},
+  ]},
+  { n:19,phase:'taper',title:'Semana de la carrera',km:9,tip:'Solo movimiento liviano. El trabajo ya está hecho.',days:[
+    {d:'Lun',type:'easy',badge:'t-easy',desc:'Trote muy suave — 20 min.',km:'~3 km',run:true},
+    {d:'Mar',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Mié',type:'rest',badge:'t-rest',desc:'Descanso.',km:null,run:false},
+    {d:'Jue',type:'rest',badge:'t-rest',desc:'Descanso. Hidratación activa.',km:null,run:false},
+    {d:'Vie',type:'easy',badge:'t-easy',desc:'Activación — 3 km suave + 4 strides de 20 seg.',km:'~4 km',run:true},
+    {d:'Sáb',type:'rest',badge:'t-rest',desc:'Descanso total. Pasta en la cena. A dormir a las 22:00.',km:null,run:false},
+    {d:'Dom',type:'race',badge:'t-race',desc:'21K BUENOS AIRES — Salí a 6:10/km los primeros 5 km. Controlate. Km 15: si tenés reservas, bajás el ritmo. Disfrutalo.',km:'21.1 km',run:true},
+  ]},
+];
+
+const PHASE_LABELS = { base:'Fase 1 — Base aeróbica', build:'Fase 2 — Construcción', build2:'Fase 3 — Construcción II', peak:'Fase 4 — Pico de forma', taper:'Fase 5 — Taper' };
+const TYPE_NAMES = { gym:'gym sup',gymleg:'gym piernas',easy:'fácil',tempo:'tempo',long:'larga',rest:'descanso',race:'CARRERA',series:'series' };
+
+let planRendered = false;
+function renderPlan(){
+  if(planRendered) return; planRendered=true;
+  const c=document.getElementById('plan-weeks-container');
+  let lastPhase=null;
+  PLAN_WEEKS.forEach(w=>{
+    if(w.phase!==lastPhase){
+      if(lastPhase!==null){
+        const d=document.createElement('div'); d.className='phase-divider';
+        d.innerHTML=`<div class="phase-line"></div><div class="phase-lbl">${PHASE_LABELS[w.phase]}</div><div class="phase-line"></div>`;
+        c.appendChild(d);
+      }
+      lastPhase=w.phase;
+    }
+    const card=document.createElement('div'); card.className='week-card';
+    let pills=`<span class="pill pill-km">${w.km} km</span>`;
+    if(w.phase==='taper') pills+=`<span class="pill pill-taper">taper</span>`;
+    if(w.days.some(d=>d.type==='race')) pills+=`<span class="pill pill-race">carrera</span>`;
+    card.innerHTML=`
+      <div class="week-header" onclick="toggleWeek(${w.n})">
+        <span class="wnum">Sem ${w.n}</span>
+        <span class="wtitle">${w.title}</span>
+        <div class="wmeta">${pills}<span class="chev" id="chev-${w.n}">▼</span></div>
+      </div>
+      <div class="week-body" id="wbody-${w.n}">
+        ${w.days.map(d=>`
+          <div class="day-row">
+            <span class="dlbl">${d.d}</span>
+            <span class="dtype"><span class="dbadge ${d.badge}">${TYPE_NAMES[d.type]||d.type}</span></span>
+            <span class="ddesc">${d.desc}</span>
+            ${d.km?`<span class="dkm">${d.km}</span>`:''}
+          </div>`).join('')}
+        <div class="week-tip">💡 ${w.tip}</div>
+      </div>`;
+    c.appendChild(card);
+  });
+  toggleWeek(1);
+}
+
+function toggleWeek(n){
+  document.getElementById('wbody-'+n).classList.toggle('open');
+  document.getElementById('chev-'+n).classList.toggle('open');
+}
+let allOpen=false;
+function toggleAll(){
+  allOpen=!allOpen;
+  PLAN_WEEKS.forEach(w=>{ document.getElementById('wbody-'+w.n).classList.toggle('open',allOpen); document.getElementById('chev-'+w.n).classList.toggle('open',allOpen); });
+}
+
+/* ── ICS Export ── */
+function exportICS(){
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Plan 21K Mariano//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  const emoji={easy:'🟢',tempo:'🔵',long:'🟣',gym:'🏋',gymleg:'🦵',series:'🩷',race:'🏁'};
+  PLAN_WEEKS.forEach(w=>{
+    const ws=new Date(PLAN_START); ws.setDate(PLAN_START.getDate()+(w.n-1)*7);
+    w.days.forEach((day,idx)=>{
+      if(day.type==='rest') return;
+      const dt=new Date(ws); dt.setDate(ws.getDate()+idx);
+      const ds=fmtDate(dt);
+      const sum=`${emoji[day.type]||'⚪'} Sem ${w.n}: ${TYPE_NAMES[day.type]||day.type}${day.km?' — '+day.km:''}`;
+      lines.push('BEGIN:VEVENT',`DTSTART;VALUE=DATE:${ds}`,`DTEND;VALUE=DATE:${ds}`,
+        `SUMMARY:${sum}`,`DESCRIPTION:${day.desc.replace(/,/g,'\\,')}`,
+        `UID:plan21k-s${w.n}-d${idx}@mariano`,'END:VEVENT');
+    });
+  });
+  lines.push('END:VCALENDAR');
+  const b=new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='plan_21k_mariano.ics'; a.click();
+}
+
+/* ── Telegram ── */
+async function testTelegram(){
+  const token=document.getElementById('tg-token').value.trim();
+  const chatId=document.getElementById('tg-chatid').value.trim();
+  const res=document.getElementById('tg-result');
+  if(!token||!chatId){res.innerHTML='<span style="color:var(--red)">Completá token y chat ID.</span>';return;}
+  res.innerHTML='Probando...';
+  try{
+    const r=await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:chatId,text:'✅ Conexión exitosa desde tu Running App. Las notificaciones están configuradas correctamente.'})
+    });
+    const d=await r.json();
+    res.innerHTML=d.ok?'<span style="color:var(--green)">✅ Mensaje enviado. Revisá Telegram.</span>':'<span style="color:var(--red)">Error: '+d.description+'</span>';
+  }catch(e){res.innerHTML='<span style="color:var(--red)">Error de conexión.</span>';}
+}
+
+function downloadTelegramScript(){
+  const token=document.getElementById('tg-token').value.trim()||'TU_BOT_TOKEN';
+  const chatId=document.getElementById('tg-chatid').value.trim()||'TU_CHAT_ID';
+  const plan={};
+  PLAN_WEEKS.forEach(w=>{
+    const ws=new Date(PLAN_START); ws.setDate(PLAN_START.getDate()+(w.n-1)*7);
+    w.days.forEach((day,idx)=>{
+      if(day.type==='rest') return;
+      const dt=new Date(ws); dt.setDate(ws.getDate()+idx);
+      const key=dt.toISOString().split('T')[0];
+      plan[key]=`Sem ${w.n} · ${TYPE_NAMES[day.type]||day.type}${day.km?' — '+day.km:''}\n${day.desc}`;
+    });
+  });
+  const script=`#!/usr/bin/env python3
+# Plan 21K Mariano — Notificador Telegram
+# pip install requests
+# Correr diariamente o configurar en cron-job.org (gratis)
+
+import requests
+from datetime import date
+
+BOT_TOKEN = "${token}"
+CHAT_ID = "${chatId}"
+
+PLAN = ${JSON.stringify(plan,null,2).replace(/"/g,"'").replace(/\\n/g,'\\n')}
+
+def main():
+    today = date.today().isoformat()
+    if today in PLAN:
+        msg = f"🏃 *Hoy toca entrenar!*\\n\\n{PLAN[today]}"
+        requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            json={"chat_id": CHAT_ID, "text": msg})
+        print(f"Notificacion enviada para {today}")
+    else:
+        print(f"Hoy ({today}) es dia de descanso.")
+
+if __name__ == "__main__":
+    main()
+`;
+  const b=new Blob([script],{type:'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='notify_telegram.py'; a.click();
+}
+
+function downloadWAScript(){
+  const phone=document.getElementById('wa-phone').value.trim()||'TU_NUMERO';
+  const apikey=document.getElementById('wa-apikey').value.trim()||'TU_APIKEY';
+  const plan={};
+  PLAN_WEEKS.forEach(w=>{
+    const ws=new Date(PLAN_START); ws.setDate(PLAN_START.getDate()+(w.n-1)*7);
+    w.days.forEach((day,idx)=>{
+      if(day.type==='rest') return;
+      const dt=new Date(ws); dt.setDate(ws.getDate()+idx);
+      const key=dt.toISOString().split('T')[0];
+      plan[key]=`Sem ${w.n} - ${TYPE_NAMES[day.type]||day.type}${day.km?' - '+day.km:''}: ${day.desc}`;
+    });
+  });
+  const script=`#!/usr/bin/env python3
+# Plan 21K Mariano — Notificador WhatsApp via CallMeBot
+# Activar primero: mandá "I allow callmebot to send me messages" al +34 644 59 74 74
+# pip install requests
+
+import requests
+from urllib.parse import quote
+from datetime import date
+
+PHONE = "${phone}"
+APIKEY = "${apikey}"
+
+PLAN = ${JSON.stringify(plan,null,2).replace(/"/g,"'").replace(/\\n/g,' ')}
+
+def main():
+    today = date.today().isoformat()
+    if today in PLAN:
+        msg = f"Plan 21K: {PLAN[today]}"
+        requests.get(f"https://api.callmebot.com/whatsapp.php?phone={PHONE}&text={quote(msg)}&apikey={APIKEY}")
+        print("Enviado.")
+    else:
+        print(f"Hoy ({today}) es descanso.")
+
+if __name__ == "__main__":
+    main()
+`;
+  const b=new Blob([script],{type:'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='notify_whatsapp.py'; a.click();
+}
+
+/* ── Init ── */
+loadRuns();
+</script>
+</body>
+</html>
