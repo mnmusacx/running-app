@@ -8,80 +8,78 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede9;
-  --text: #1a1a1a; --text2: #666; --text3: #999;
-  --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
-  --radius: 10px; --radius-sm: 7px;
-  --blue: #378ADD; --green: #1D9E75; --orange: #EF9F27; --red: #D85A30;
+  --bg: #ffffff; --bg2: #F1F5F9; --bg3: #F8FAFC;
+  --text: #1E293B; --text2: #64748B; --text3: #94A3B8;
+  --border: #E2E8F0; --border2: #CBD5E1;
+  --radius: 10px; --radius-sm: 8px;
+  --accent: #4F46E5; --accent-light: #EEF2FF; --accent-border: #C7D2FE; --accent-dark: #3730A3;
+  --slate: #1E293B;
+  --blue: #4F46E5; --green: #16A34A; --orange: #D97706; --red: #DC2626;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1c1c1e; --bg2: #2c2c2e; --bg3: #3a3a3c;
-    --text: #f2f2f7; --text2: #ababab; --text3: #666;
-    --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
-  }
-}
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
+body { font-family: 'Outfit', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
+
+/* ── Google Font ── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
 /* ── App shell ── */
 .app-nav { background: var(--bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0; padding: 0 0.75rem; position: sticky; top: 0; z-index: 50; overflow-x: auto; }
-.app-logo { font-size: 14px; font-weight: 700; margin-right: 1rem; padding: 0.875rem 0; white-space: nowrap; flex-shrink: 0; }
-.app-logo span { color: var(--green); }
-.nav-tab { padding: 0.875rem 0.85rem; font-size: 13px; cursor: pointer; border: none; background: none; color: var(--text2); border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s; flex-shrink: 0; }
+.app-logo { font-size: 15px; font-weight: 900; margin-right: 1rem; padding: 0.875rem 0; white-space: nowrap; flex-shrink: 0; letter-spacing: -.02em; text-transform: uppercase; color: var(--slate); }
+.app-logo span { color: var(--accent); }
+.nav-tab { padding: 0.875rem 0.85rem; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; border: none; background: none; color: var(--text3); border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s; flex-shrink: 0; }
 .nav-tab:hover { color: var(--text); }
-.nav-tab.active { color: var(--text); font-weight: 600; border-bottom: 2px solid var(--green); }
+.nav-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
 .page { display: none; max-width: 600px; margin: 0 auto; padding: 1rem 0.875rem 5rem; }
 .page.active { display: block; }
 
 /* ── Shared components ── */
-.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 13px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border2); background: none; color: var(--text); transition: background 0.15s; white-space: nowrap; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border2); background: none; color: var(--text); transition: background 0.15s; white-space: nowrap; font-family: inherit; }
 .btn:hover { background: var(--bg2); }
-.btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+.btn-primary { background: var(--slate); color: #fff; border-color: var(--slate); }
 .btn-primary:hover { opacity: 0.85; }
-.btn-green { background: #25D366; color: #fff; border-color: #25D366; }
-.btn-green:hover { opacity: 0.88; }
-.btn-telegram { background: #229ED9; color: #fff; border-color: #229ED9; }
-.btn-telegram:hover { opacity: 0.88; }
-.btn-sm { padding: 4px 10px; font-size: 12px; }
-.btn-danger { color: #c0392b; border-color: #c0392b33; }
-.btn-danger:hover { background: #c0392b11; }
-.card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; }
+.btn-sm { padding: 4px 10px; font-size: 10px; }
+.btn-danger { color: var(--red); border-color: #dc262633; }
+.btn-danger:hover { background: #dc262611; }
+.card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; }
 .section-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 1.25rem; }
-.section-header h2 { font-size: 18px; font-weight: 600; }
-.section-header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.section-header h2 { font-size: 16px; font-weight: 900; letter-spacing: -.01em; text-transform: uppercase; color: var(--slate); }
+.section-header p { font-size: 11px; color: var(--text3); margin-top: 2px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
 .metrics-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-bottom: 1.25rem; }
 @media(min-width:500px){ .metrics-grid { grid-template-columns: repeat(4,1fr); } }
-.metric-card { background: var(--bg2); border-radius: var(--radius-sm); padding: 0.875rem; }
-.metric-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
-.metric-value { font-size: 22px; font-weight: 600; }
-.metric-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.metric-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.875rem; }
+.metric-label { font-size: 9px; color: var(--text3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .14em; font-weight: 700; }
+.metric-value { font-size: 26px; font-weight: 900; letter-spacing: -.02em; color: var(--slate); }
+.metric-sub { font-size: 10px; color: var(--text3); margin-top: 2px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .tab-bar { display: flex; gap: 0; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); overflow-x: auto; }
-.sub-tab { padding: 8px 16px; font-size: 13px; cursor: pointer; border: none; background: none; color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
-.sub-tab.active { color: var(--text); font-weight: 600; border-bottom: 2px solid var(--text); }
+.sub-tab { padding: 10px 14px; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; border: none; background: none; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; font-family: inherit; }
+.sub-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
 .sub-content { display: none; }
 .sub-content.active { display: block; }
 input, select, textarea { width: 100%; padding: 8px 10px; font-size: 14px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-family: inherit; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
 textarea { resize: vertical; min-height: 60px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media(max-width:500px){ .form-grid { grid-template-columns: 1fr; } }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 .form-group.full { grid-column: 1/-1; }
-.form-group label { font-size: 12px; color: var(--text2); font-weight: 500; }
+.form-group label { font-size: 10px; color: var(--text2); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+
+/* ── Section divider label ── */
+.section-divider { font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--text3); display: flex; align-items: center; gap: 8px; margin: 1rem 0 8px; }
+.section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 /* ── Tracker badges ── */
-.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
-.badge-easy     { background: #EAF3DE; color: #3B6D11; }
-.badge-tempo    { background: #FAEEDA; color: #854F0B; }
-.badge-interval { background: #FAECE7; color: #993C1D; }
-.badge-long     { background: #E6F1FB; color: #185FA5; }
-.badge-race     { background: #EEEDFE; color: #534AB7; }
-.badge-recovery { background: #F1EFE8; color: #5F5E5A; }
+.badge { display: inline-block; font-size: 9px; padding: 3px 8px; border-radius: 4px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.badge-easy     { background: var(--accent-light); color: var(--accent-dark); border: 1px solid var(--accent-border); }
+.badge-tempo    { background: #FEF3EE; color: #92400E; border: 1px solid #FED7AA; }
+.badge-interval { background: #FFF1F2; color: #BE123C; border: 1px solid #FECDD3; }
+.badge-long     { background: var(--slate); color: #fff; }
+.badge-race     { background: var(--accent); color: #fff; }
+.badge-recovery { background: var(--bg2); color: var(--text2); border: 1px solid var(--border); }
 
 /* ── Tracker table ── */
 .runs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.runs-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text2); padding: 6px 8px; border-bottom: 1px solid var(--border); letter-spacing: 0.05em; text-transform: uppercase; }
-.runs-table td { padding: 10px 8px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+.runs-table th { text-align: left; font-size: 9px; font-weight: 800; color: var(--text3); padding: 6px 8px; border-bottom: 1px solid var(--border); letter-spacing: .12em; text-transform: uppercase; }
+.runs-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; font-weight: 600; color: var(--slate); }
 .runs-table tbody tr:last-child td { border-bottom: none; }
 .runs-table tbody tr:hover td { background: var(--bg2); }
 .detail-panel { background: var(--bg2); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin: 4px 0 8px; font-size: 12px; }
@@ -166,32 +164,72 @@ textarea { resize: vertical; min-height: 60px; }
 .step-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
 
 /* ── Hoy page ── */
-.hoy-date { font-size: 12px; color: var(--text2); margin-bottom: 1rem; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; }
-.hoy-hero { border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; border: 1px solid; }
+.hoy-date { font-size: 9px; color: var(--text3); margin-bottom: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: .18em; }
+.hoy-hero { border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; background: var(--slate); position: relative; overflow: hidden; }
+.hoy-hero::before { content: ""; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px; border-radius: 50%; background: var(--accent); opacity: .15; }
 .hoy-hero-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.hoy-hero-icon { font-size: 36px; flex-shrink: 0; }
-.hoy-hero-type { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; opacity: .7; }
-.hoy-hero-title { font-size: 20px; font-weight: 700; margin-top: 2px; line-height: 1.2; }
+.hoy-hero-icon { font-size: 28px; flex-shrink: 0; }
+.hoy-hero-type { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .18em; color: var(--accent); margin-bottom: 4px; }
+.hoy-hero-title { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -.03em; line-height: 1; text-transform: uppercase; }
 .hoy-hero-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-.hoy-pill { font-size: 12px; padding: 3px 10px; border-radius: 99px; font-weight: 600; background: rgba(0,0,0,0.08); }
-.hoy-desc { font-size: 13px; line-height: 1.6; margin-top: 10px; opacity: .85; }
-.hoy-section-title { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin: 1rem 0 8px; }
-.hoy-focus-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 8px; }
-.hoy-focus-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-bottom: 0.5px solid var(--border); }
+.hoy-pill { font-size: 10px; padding: 3px 10px; border-radius: 4px; font-weight: 800; background: rgba(255,255,255,.12); color: #A5B4FC; text-transform: uppercase; letter-spacing: .08em; }
+.hoy-desc { font-size: 12px; line-height: 1.6; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.1); color: #94A3B8; font-weight: 500; }
+.hoy-section-title { font-size: 9px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .18em; display: flex; align-items: center; gap: 8px; margin: 1rem 0 8px; }
+.hoy-section-title::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+.hoy-focus-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 8px; }
+.hoy-focus-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-bottom: 1px solid var(--border); }
 .hoy-focus-item:last-child { border-bottom: none; }
-.hoy-focus-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.hoy-focus-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .hoy-focus-body { flex: 1; }
-.hoy-focus-label { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-.hoy-focus-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
-.hoy-rest { background: var(--bg2); border-radius: var(--radius); padding: 2rem 1.25rem; text-align: center; margin-bottom: 1rem; }
+.hoy-focus-label { font-size: 11px; font-weight: 800; color: var(--slate); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+.hoy-focus-text { font-size: 11px; color: var(--text2); line-height: 1.5; font-weight: 500; }
+.hoy-rest { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem 1.25rem; text-align: center; margin-bottom: 1rem; }
 .hoy-rest-icon { font-size: 40px; margin-bottom: 10px; }
-.hoy-rest-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.hoy-rest-title { font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: -.01em; margin-bottom: 6px; color: var(--slate); }
 .hoy-rest-sub { font-size: 13px; color: var(--text2); line-height: 1.6; }
-.hoy-cargar-btn { width: 100%; padding: 14px; font-size: 15px; font-weight: 600; border-radius: var(--radius); cursor: pointer; border: none; background: var(--green); color: #fff; margin-top: 4px; transition: opacity .15s; }
+.hoy-cargar-btn { width: 100%; padding: 14px; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; border-radius: var(--radius); cursor: pointer; border: none; background: var(--accent); color: #fff; margin-top: 4px; transition: opacity .15s; font-family: inherit; }
 .hoy-cargar-btn:hover { opacity: .88; }
-.hoy-ya-corriste { background: #EAF3DE; border: 1px solid #97C459; border-radius: var(--radius); padding: 12px 16px; display: flex; align-items: center; gap: 12px; margin-top: 4px; }
-.hoy-fuera-plan { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; }
+.hoy-ya-corriste { background: var(--accent-light); border: 1px solid var(--accent-border); border-radius: var(--radius); padding: 12px 16px; display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.hoy-fuera-plan { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; }
 .thinking-inline { display: flex; gap: 4px; align-items: center; }
+
+/* ── Gym page ── */
+.gym-day-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+.gym-day-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
+.gym-day-header:hover { background: var(--bg2); }
+.gym-day-icon { font-size: 24px; flex-shrink: 0; }
+.gym-day-info { flex: 1; }
+.gym-day-name { font-size: 15px; font-weight: 600; }
+.gym-day-focus { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.gym-day-chev { font-size: 11px; color: var(--text3); transition: transform .2s; }
+.gym-day-chev.open { transform: rotate(180deg); }
+.gym-day-body { border-top: 0.5px solid var(--border); display: none; }
+.gym-day-body.open { display: block; }
+.gym-block { padding: 12px 16px; border-bottom: 0.5px solid var(--border); }
+.gym-block:last-child { border-bottom: none; }
+.gym-block-title { font-size: 10px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
+.gym-exercise { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
+.gym-exercise:last-child { border-bottom: none; }
+.gym-ex-num { font-size: 11px; font-weight: 700; color: var(--text3); min-width: 18px; padding-top: 2px; }
+.gym-ex-body { flex: 1; }
+.gym-ex-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.gym-ex-sets { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.gym-ex-tip { font-size: 11px; color: var(--text3); margin-top: 3px; font-style: italic; }
+.gym-ex-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.gym-tag { font-size: 10px; padding: 1px 6px; border-radius: 99px; font-weight: 600; }
+.gym-tag-compound { background: #E6F1FB; color: #185FA5; }
+.gym-tag-iso { background: #FAEEDA; color: #854F0B; }
+.gym-tag-core { background: #EAF3DE; color: #3B6D11; }
+.gym-tag-run { background: #EEEDFE; color: #534AB7; }
+.gym-note { background: var(--bg2); border-radius: var(--radius-sm); padding: 8px 12px; margin: 10px 16px; font-size: 12px; color: var(--text2); line-height: 1.55; }
+.gym-note strong { color: var(--text); }
+.gym-phase-note { background: #E6F1FB; border: 0.5px solid #85B7EB; border-radius: var(--radius); padding: 10px 14px; margin-bottom: 12px; font-size: 12px; color: #0C447C; line-height: 1.55; }
+.gym-progress-box { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 12px; }
+.gym-progress-title { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+.gym-prog-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 0.5px solid var(--border); font-size: 12px; }
+.gym-prog-row:last-child { border-bottom: none; }
+.gym-prog-label { color: var(--text2); }
+.gym-prog-val { font-weight: 600; color: var(--text); }
 
 /* ── Mejoras ── */
 .mejora-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 10px; }
@@ -239,21 +277,22 @@ textarea { resize: vertical; min-height: 60px; }
 .cd-lbl { font-size: 9px; opacity: 0.7; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
 .race-banner-adizero .cd-unit { background: rgba(83,74,183,0.15); }
 .race-banner-21k .cd-unit { background: rgba(8,80,65,0.15); }
-.week-current { border: 2px solid var(--green) !important; }
-.week-future .week-header { opacity: 0.55; }
-.week-past .week-header { opacity: 0.4; }
-.week-label-badge { font-size: 10px; padding: 1px 7px; border-radius: 99px; font-weight: 600; margin-left: 4px; }
-.lbl-current { background: #EAF3DE; color: #27500A; }
+.week-current { border: 2px solid var(--accent) !important; }
+.week-future .week-header { opacity: 0.5; }
+.week-past .week-header { opacity: 0.35; }
+.week-label-badge { font-size: 9px; padding: 2px 7px; border-radius: 3px; font-weight: 800; margin-left: 4px; letter-spacing: .06em; text-transform: uppercase; }
+.lbl-current { background: var(--accent); color: #fff; }
 .lbl-past { background: var(--bg2); color: var(--text3); }
 </style>
 </head>
 <body>
 
 <nav class="app-nav">
-  <div class="app-logo">🏃 Running<span>App</span></div>
+  <div class="app-logo">RUN<span>APP</span></div>
   <button class="nav-tab active" onclick="showPage('hoy')">Hoy</button>
   <button class="nav-tab" onclick="showPage('tracker')">Carreras</button>
   <button class="nav-tab" onclick="showPage('plan')">Plan 21K</button>
+  <button class="nav-tab" onclick="showPage('gym')">Gym</button>
 </nav>
 
 <!-- ══════════════════════════════════════════
@@ -281,7 +320,7 @@ textarea { resize: vertical; min-height: 60px; }
   <div class="metrics-grid">
     <div class="metric-card"><div class="metric-label">Carreras</div><div class="metric-value" id="m-total">—</div></div>
     <div class="metric-card"><div class="metric-label">Km totales</div><div class="metric-value" id="m-km">—</div></div>
-    <div class="metric-card"><div class="metric-label">Mejor pace</div><div class="metric-value" id="m-pace">—</div><div class="metric-sub">min/km</div></div>
+    <div class="metric-card" style="background:var(--slate)"><div class="metric-label" style="color:var(--accent)">Mejor pace</div><div class="metric-value" style="color:#fff" id="m-pace">—</div><div class="metric-sub" style="color:#64748B">min/km</div></div>
     <div class="metric-card"><div class="metric-label">Dist. máx.</div><div class="metric-value" id="m-max">—</div><div class="metric-sub">km</div></div>
   </div>
 
@@ -349,7 +388,6 @@ textarea { resize: vertical; min-height: 60px; }
       <h2>Plan 21K Buenos Aires</h2>
       <p>20 semanas · 7 abr → 23 ago 2026 · 3 días running + gym mié/jue/vie</p>
     </div>
-    <button class="btn btn-primary" onclick="exportICS()">📅 Exportar a Calendario</button>
   </div>
 
   <div class="schema-box">
@@ -372,46 +410,16 @@ textarea { resize: vertical; min-height: 60px; }
 </div>
 
 <!-- ══════════════════════════════════════════
-     PAGE: NOTIFICACIONES
+     PAGE: GYM
 ══════════════════════════════════════════ -->
-<div id="page-notify" class="page">
+<div id="page-gym" class="page">
   <div class="section-header">
-    <div><h2>Notificaciones</h2><p>Configurá recordatorios para tus días de entrenamiento</p></div>
-  </div>
-
-  <div class="card" style="margin-bottom:1rem">
-    <div style="font-size:15px;font-weight:600;margin-bottom:8px">📅 Google / Apple Calendar</div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">La opción más simple. Exportá todos los entrenamientos como eventos de calendario. Importalo con doble clic y recibís las notificaciones nativas del celu.</p>
-    <button class="btn btn-primary" onclick="exportICS()">Descargar archivo .ics</button>
-  </div>
-
-  <div class="card" style="margin-bottom:1rem">
-    <div style="font-size:15px;font-weight:600;margin-bottom:8px">✈ Bot de Telegram</div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">Recibís un mensaje automático cada día que toca entrenar con el detalle de la sesión. Requiere crear un bot (5 min, gratis).</p>
-    <div class="form-grid" style="margin-bottom:12px">
-      <div class="form-group"><label>Token del bot (de BotFather)</label><input type="text" id="tg-token" placeholder="7123456789:AAF..." /></div>
-      <div class="form-group"><label>Tu Chat ID</label><input type="text" id="tg-chatid" placeholder="123456789" /></div>
+    <div>
+      <h2>Plan de gym</h2>
+      <p>Mié / Jue / Vie · Hipertrofia + running</p>
     </div>
-    <div class="info-box" style="margin-bottom:12px">
-      <strong>Cómo obtener el Chat ID:</strong> Mandá cualquier mensaje a tu bot nuevo, luego abrí en el browser:<br>
-      <code>https://api.telegram.org/botTOKEN/getUpdates</code> — buscá "id" dentro de "chat".
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-telegram" onclick="testTelegram()">Probar conexión</button>
-      <button class="btn btn-telegram" onclick="downloadTelegramScript()">Descargar script Python</button>
-    </div>
-    <div id="tg-result" style="margin-top:10px;font-size:13px"></div>
   </div>
-
-  <div class="card">
-    <div style="font-size:15px;font-weight:600;margin-bottom:8px">💬 WhatsApp via CallMeBot</div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">Primero activá el servicio mandando <code>I allow callmebot to send me messages</code> al <strong>+34 644 59 74 74</strong> por WhatsApp.</p>
-    <div class="form-grid" style="margin-bottom:12px">
-      <div class="form-group"><label>Número (sin +, ej: 5491151234567)</label><input type="text" id="wa-phone" placeholder="5491151234567" /></div>
-      <div class="form-group"><label>API Key de CallMeBot</label><input type="text" id="wa-apikey" placeholder="tu apikey" /></div>
-    </div>
-    <button class="btn btn-green" onclick="downloadWAScript()">Descargar script Python</button>
-  </div>
+  <div id="gym-container"></div>
 </div>
 
 <!-- Modal agregar/editar carrera -->
@@ -474,6 +482,8 @@ function paceStr(raw) {
 }
 function pad(n){ return String(n).padStart(2,'0'); }
 function fmtDate(d){ return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate()); }
+function localStr(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function todayLocalStr(){ return localStr(localToday()); }
 
 /* ══════════════════════════════════════════
    NAV
@@ -484,8 +494,197 @@ function showPage(id) {
   document.getElementById('page-'+id).classList.add('active');
   event.currentTarget.classList.add('active');
   if(id==='hoy') renderHoy();
+  if(id==='gym') renderGym();
   if(id==='plan') setTimeout(()=>{ if(!planRendered) renderPlan(); },50);
   if(id==='tracker') setTimeout(renderChart,50);
+}
+
+/* ══════════════════════════════════════════
+   GYM
+══════════════════════════════════════════ */
+const GYM_DAYS = [
+  {
+    id:'mie', day:'Miércoles', icon:'💪', focus:'Push — Pecho · Hombros · Tríceps',
+    color:'#E6F1FB', borderColor:'#85B7EB',
+    note:'Hacé este día en ayunas o con un snack liviano. El running de la tarde no se ve afectado por el tren superior.',
+    blocks:[
+      { title:'Activación (5 min)',
+        exercises:[
+          { name:'Band pull-apart', sets:'2 × 15', tip:'Agarrás una banda con ambas manos al frente y la separás hacia los costados hasta tocar el pecho. Activa manguito rotador y previene lesiones de hombro.', tags:['core'] },
+        ]},
+      { title:'Pecho',
+        exercises:[
+          { name:'Press banca con barra', sets:'4 × 8–10', tip:'Bajá la barra controlado (2 seg), empujá explosivo. Codo a 75°.', tags:['compound'] },
+          { name:'Press inclinado con mancuernas', sets:'3 × 10–12', tip:'Inclinación 30–45°. Foco en parte superior del pecho.', tags:['compound'] },
+          { name:'Aperturas en polea baja (cable fly)', sets:'3 × 12–15', tip:'Arco amplio, juntá las manos con leve rotación interna.', tags:['iso'] },
+        ]},
+      { title:'Hombros',
+        exercises:[
+          { name:'Press militar con barra (o mancuernas)', sets:'4 × 8–10', tip:'No hiperextendas la zona lumbar. Core apretado durante todo el movimiento.', tags:['compound'] },
+          { name:'Elevaciones laterales', sets:'3 × 12–15', tip:'Codo ligeramente doblado, bajá lento. No uses impulso.', tags:['iso'] },
+          { name:'Face pull en polea', sets:'3 × 15', tip:'Polea alta con cuerda. Jalás hacia tu cara separando los extremos, codos arriba. Fundamental para la salud del hombro.', tags:['iso','run'] },
+        ]},
+      { title:'Tríceps',
+        exercises:[
+          { name:'Press francés con barra EZ', sets:'3 × 10–12', tip:'Acostado en el banco, bajás la barra hacia la frente doblando solo el codo. Codos fijos apuntando al techo.', tags:['iso'] },
+          { name:'Extensión en polea alta (rope)', sets:'3 × 12–15', tip:'Separás la cuerda al final del recorrido.', tags:['iso'] },
+        ]},
+      { title:'Abdominales',
+        exercises:[
+          { name:'Plancha con rotación (reach)', sets:'3 × 8 c/lado', tip:'Desde plancha frontal, extendés un brazo al frente sin rotar la cadera. Core duro, caderas quietas.', tags:['core','run'] },
+        ]},
+    ]
+  },
+  {
+    id:'jue', day:'Jueves', icon:'🦵', focus:'Piernas — Cuádriceps · Isquiotibiales · Glúteos · Pantorrillas',
+    color:'#FAECE7', borderColor:'#F0997B',
+    note:'Este día es clave para el running. Los glúteos y los isquios son los motores de cada zancada. No lo salteés aunque el miércoles hayas entrenado fuerte.',
+    blocks:[
+      { title:'Activación (5 min)',
+        exercises:[
+          { name:'Monster walk con banda', sets:'2 × 15 pasos c/lado', tip:'Banda elástica en rodillas o tobillos. Posición semi-sentada, caminás hacia los costados manteniendo la tensión. Activa glúteo medio y previene colapso de rodilla al correr.', tags:['run','core'] },
+        ]},
+      { title:'Cuádriceps / Glúteos',
+        exercises:[
+          { name:'Sentadilla con barra (back squat)', sets:'4 × 6–8', tip:'Profundidad al menos paralela. Rodillas alineadas con pies. Este es el ejercicio más importante del día.', tags:['compound','run'] },
+          { name:'Prensa 45°', sets:'3 × 10–12', tip:'Pie alto y separado = más glúteo. Pie bajo = más cuádriceps.', tags:['compound'] },
+          { name:'Zancadas con mancuernas (walking lunges)', sets:'3 × 10 c/pierna', tip:'Muy específico para running. Tronco erguido, rodilla delantera no pasa el pie.', tags:['compound','run'] },
+        ]},
+      { title:'Isquiotibiales / Glúteos',
+        exercises:[
+          { name:'Romanian deadlift (RDL) con barra', sets:'4 × 8–10', tip:'Bisagra de cadera pura. La barra roza las piernas todo el tiempo. Clave para isquios y glúteos.', tags:['compound','run'] },
+          { name:'Hip thrust con barra', sets:'3 × 10–12', tip:'El mejor ejercicio de glúteo. Empujá el piso con los talones, no con la planta.', tags:['compound','run'] },
+          { name:'Curl femoral en máquina (tumbado)', sets:'3 × 12', tip:'Isquiotibiales son el músculo más lesionado en running. Fortalecelos bien.', tags:['iso','run'] },
+        ]},
+      { title:'Pantorrillas',
+        exercises:[
+          { name:'Calf raise de pie', sets:'4 × 15–20', tip:'Pausa de 1 seg arriba. Vas a notar la diferencia en las últimas subidas del 21K.', tags:['iso','run'] },
+        ]},
+      { title:'Abdominales',
+        exercises:[
+          { name:'Rueda de abdominales (ab wheel)', sets:'3 × 10', tip:'De rodillas, rodás hacia adelante con brazos extendidos hasta casi tocar el piso y volvés. Si no tenés rueda, hacé el movimiento apoyando las manos en el piso.', tags:['core','run'] },
+        ]},
+    ]
+  },
+  {
+    id:'vie', day:'Viernes', icon:'🏋', focus:'Pull — Espalda · Bíceps · Core',
+    color:'#EAF3DE', borderColor:'#97C459',
+    note:'Tarde/noche hacés el running de calidad (tempo o series). El pull de mañana no compromete las piernas ni la capacidad aeróbica.',
+    blocks:[
+      { title:'Activación (5 min)',
+        exercises:[
+          { name:'Cat-cow', sets:'2 × 10 respiraciones', tip:'En cuatro apoyos (manos y rodillas). Alternás entre arquear la espalda hacia arriba (cat) y hundirla levantando la cabeza (cow). Movilidad de columna antes de los remos pesados.', tags:['core'] },
+        ]},
+      { title:'Espalda',
+        exercises:[
+          { name:'Dominadas (o jalón al pecho en polea)', sets:'4 × 6–10', tip:'Si hacés jalón: codos bajan a los costados del torso, no atrás. Agarre supino o neutro.', tags:['compound'] },
+          { name:'Remo con barra (bent-over row)', sets:'4 × 8–10', tip:'Espalda recta, codo cerca del cuerpo, jalás hacia el ombligo. Retrae la escápula.', tags:['compound'] },
+          { name:'Remo en polea sentado (cable row)', sets:'3 × 12', tip:'Pausa de 1 seg apretando la escápula al final del movimiento.', tags:['compound'] },
+          { name:'Pullover con mancuerna', sets:'3 × 12–15', tip:'Acostado en el banco, mancuerna con ambas manos por encima del pecho, brazos casi rectos. Bajás hacia atrás de la cabeza hasta sentir estiramiento en el dorsal y volvés.', tags:['iso'] },
+        ]},
+      { title:'Bíceps',
+        exercises:[
+          { name:'Curl con barra EZ', sets:'3 × 10–12', tip:'Codos fijos al costado del cuerpo. No te balancees.', tags:['iso'] },
+          { name:'Curl martillo con mancuernas', sets:'3 × 12', tip:'Trabaja braquial y braquiorradial. Mejor agarre para running.', tags:['iso'] },
+        ]},
+      { title:'Abdominales',
+        exercises:[
+          { name:'Crunch en polea alta (cable crunch)', sets:'3 × 15', tip:'De rodillas frente a la polea alta con la cuerda en la nuca. Flexionás el torso hacia abajo contrayendo el abdomen, sin mover las caderas. Controlá la subida.', tags:['core','run'] },
+        ]},
+    ]
+  },
+];
+
+const GYM_PRINCIPLES = [
+  { label:'Series y reps', val:'3–4 series · 8–12 reps (hipertrofia)' },
+  { label:'Descanso entre series', val:'60–90 seg (compuestos: 2 min)' },
+  { label:'Progresión semanal', val:'+2.5 kg cuando completás todas las reps' },
+  { label:'RIR objetivo', val:'1–2 reps en reserva (no al fallo)' },
+  { label:'Duración sesión', val:'45–60 min' },
+  { label:'Periodización', val:'Sem 1–4 base · Sem 5–8 intensidad · Sem 9–12 volumen · Sem 13–16 fuerza · Sem 17–19 descarga' },
+];
+
+let gymRendered = false;
+function renderGym(){
+  if(gymRendered) return; gymRendered=true;
+  const c=document.getElementById('gym-container');
+  const today=localToday();
+  const todayDow=today.getDay();
+  const dowMap={3:'mie',4:'jue',5:'vie'};
+  const todayGymId=dowMap[todayDow]||null;
+
+  const diffDays=daysDiff(PLAN_START, today);
+  const curWeekN=diffDays>=0?Math.min(Math.floor(diffDays/7)+1,19):0;
+  let phaseNote='';
+  if(curWeekN>=1&&curWeekN<=4) phaseNote='Fase 1 (sem 1–4): Cargas moderadas, foco en técnica. Aprendé los movimientos bien antes de subir peso.';
+  else if(curWeekN>=5&&curWeekN<=8) phaseNote='Fase 2 (sem 5–8): Subís cargas progresivamente. Priorizá los compuestos y empezá a trackear tus pesos.';
+  else if(curWeekN>=9&&curWeekN<=12) phaseNote='Fase 3 (sem 9–12): Volumen más alto. Si el running está pesado, bajá el gym 20% — el running es la prioridad.';
+  else if(curWeekN>=13&&curWeekN<=16) phaseNote='Fase 4 (sem 13–16): Pico de forma en running. El gym baja de intensidad para no comprometer la energía.';
+  else if(curWeekN>=17) phaseNote='Fase 5 — Taper (sem 17–19): Gym de piernas suspendido. Solo tren superior liviano. Las piernas tienen que llegar frescas al 23/ago.';
+
+  let html='';
+
+  if(phaseNote){
+    html+=`<div class="gym-phase-note">📍 <strong>Ahora en semana ${curWeekN}:</strong> ${phaseNote}</div>`;
+  }
+
+  // Principles card
+  html+=`<div class="gym-progress-box" style="margin-bottom:12px">
+    <div class="gym-progress-title">Principios de la rutina</div>
+    ${GYM_PRINCIPLES.map(p=>`<div class="gym-prog-row"><span class="gym-prog-label">${p.label}</span><span class="gym-prog-val">${p.val}</span></div>`).join('')}
+  </div>`;
+
+  // Day cards
+  GYM_DAYS.forEach(d=>{
+    const isToday=d.id===todayGymId;
+    html+=`<div class="gym-day-card" ${isToday?'style="border:2px solid var(--green)"':''}>
+      <div class="gym-day-header" onclick="toggleGymDay('${d.id}')">
+        <div class="gym-day-icon">${d.icon}</div>
+        <div class="gym-day-info">
+          <div class="gym-day-name">${d.day}${isToday?' <span style="font-size:10px;background:#EAF3DE;color:#27500A;padding:1px 7px;border-radius:99px;font-weight:700;margin-left:4px">Hoy</span>':''}</div>
+          <div class="gym-day-focus">${d.focus}</div>
+        </div>
+        <span class="gym-day-chev${isToday?' open':''}" id="gymchev-${d.id}">▼</span>
+      </div>
+      <div class="gym-day-body${isToday?' open':''}" id="gymbody-${d.id}">
+        <div class="gym-note" style="background:${d.color};border:0.5px solid ${d.borderColor};color:var(--text)">💡 ${d.note}</div>
+        ${d.blocks.map(b=>`
+          <div class="gym-block">
+            <div class="gym-block-title">${b.title}</div>
+            ${b.exercises.map((e,i)=>`
+              <div class="gym-exercise">
+                <div class="gym-ex-num">${i+1}</div>
+                <div class="gym-ex-body">
+                  <div class="gym-ex-name">${e.name}</div>
+                  <div class="gym-ex-sets">${e.sets}</div>
+                  ${e.tip?`<div class="gym-ex-tip">${e.tip}</div>`:''}
+                  <div class="gym-ex-tags">
+                    ${(e.tags||[]).map(t=>{
+                      const cls={compound:'gym-tag-compound',iso:'gym-tag-iso',core:'gym-tag-core',run:'gym-tag-run'}[t]||'';
+                      const lbl={compound:'Compuesto',iso:'Aislamiento',core:'Core',run:'Running específico'}[t]||t;
+                      return `<span class="gym-tag ${cls}">${lbl}</span>`;
+                    }).join('')}
+                  </div>
+                </div>
+              </div>`).join('')}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  // Legend
+  html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;font-size:11px;color:var(--text2)">
+    <span class="gym-tag gym-tag-compound">Compuesto</span> Multi-articular, máximo estímulo &nbsp;
+    <span class="gym-tag gym-tag-iso">Aislamiento</span> Un músculo específico &nbsp;
+    <span class="gym-tag gym-tag-run">Running específico</span> Transferencia directa al running
+  </div>`;
+
+  c.innerHTML=html;
+}
+
+function toggleGymDay(id){
+  document.getElementById('gymbody-'+id).classList.toggle('open');
+  document.getElementById('gymchev-'+id).classList.toggle('open');
 }
 function switchSub(page, sub) {
   const prefix = page+'-';
@@ -504,9 +703,9 @@ function switchSub(page, sub) {
 function renderHoy(){
   const c=document.getElementById('hoy-container');
   if(!c) return;
-  const today=new Date(); today.setHours(0,0,0,0);
-  const todayStr=today.toISOString().split('T')[0];
-  const diffDays=Math.floor((today-PLAN_START)/(1000*60*60*24));
+  const today=localToday();
+  const todayStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const diffDays=daysDiff(PLAN_START, today);
 
   // Fecha bonita
   const fechaHoy=today.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
@@ -558,28 +757,12 @@ function renderHoy(){
     const isRun=['easy','tempo','long','series','race','recovery','interval'].includes(todaySession.type);
 
     // Colores y datos por tipo
-    const heroStyles={
-      easy:   {bg:'#EAF3DE',border:'#97C459',color:'#27500A',icon:'🟢'},
-      tempo:  {bg:'#E6F1FB',border:'#85B7EB',color:'#0C447C',icon:'🔵'},
-      long:   {bg:'#EEEDFE',border:'#AFA9EC',color:'#3C3489',icon:'🟣'},
-      series: {bg:'#FBEAF0',border:'#ED93B1',color:'#72243E',icon:'🩷'},
-      race:   {bg:'#FAECE7',border:'#F0997B',color:'#712B13',icon:'🏁'},
-      gym:    {bg:'#FAEEDA',border:'#FAC775',color:'#633806',icon:'🏋'},
-      gymleg: {bg:'#FAECE7',border:'#F0997B',color:'#712B13',icon:'🦵'},
-      rest:   {bg:'var(--bg2)',border:'var(--border)',color:'var(--text2)',icon:'😴'},
-      recovery:{bg:'#F1EFE8',border:'#D3D1C7',color:'#444441',icon:'🔄'},
-    };
-    const style=heroStyles[todaySession.type]||heroStyles.rest;
+    const heroIcons={easy:'🟢',tempo:'🔵',long:'🟣',series:'🩷',race:'🏁',gym:'🏋',gymleg:'🦵',rest:'😴',recovery:'🔄',interval:'⚡'};
     const typeNames={easy:'Rodaje fácil',tempo:'Tempo',long:'Tirada larga',series:'Series',race:'¡Carrera!',gym:'Gym — tren superior',gymleg:'Gym — piernas',rest:'Descanso',recovery:'Recuperación',interval:'Intervalos'};
 
-    html+=`<div class="hoy-hero" style="background:${style.bg};border-color:${style.border};color:${style.color}">
-      <div class="hoy-hero-top">
-        <div class="hoy-hero-icon">${style.icon}</div>
-        <div>
-          <div class="hoy-hero-type">Sem ${todayWeek.n} · ${todaySession.d}</div>
-          <div class="hoy-hero-title">${typeNames[todaySession.type]||todaySession.type}</div>
-        </div>
-      </div>
+    html+=`<div class="hoy-hero">
+      <div class="hoy-hero-type">● Sem ${todayWeek.n} · ${todaySession.d}</div>
+      <div class="hoy-hero-title">${typeNames[todaySession.type]||todaySession.type}</div>
       ${todaySession.km?`<div class="hoy-hero-meta"><span class="hoy-pill">${todaySession.km}</span></div>`:''}
       <div class="hoy-desc">${todaySession.desc}</div>
     </div>`;
@@ -590,8 +773,8 @@ function renderHoy(){
       html+=`<div class="hoy-ya-corriste">
         <span style="font-size:22px">✅</span>
         <div>
-          <div style="font-size:13px;font-weight:600;color:#27500A">¡Ya registraste esta sesión!</div>
-          <div style="font-size:12px;color:#3B6D11;margin-top:2px">${parseFloat(r.distance).toFixed(1)} km · ${r.time||'—'} · ${paceStr(r.pace)} '/km</div>
+          <div style="font-size:11px;font-weight:800;color:var(--accent-dark);text-transform:uppercase;letter-spacing:.08em">¡Sesión registrada!</div>
+          <div style="font-size:12px;color:var(--accent);margin-top:2px;font-weight:600">${parseFloat(r.distance).toFixed(1)} km · ${r.time||'—'} · ${paceStr(r.pace)} '/km</div>
         </div>
       </div>`;
     }
@@ -615,9 +798,33 @@ function renderHoy(){
     if(isRun && !yaCorriste){
       html+=`<button class="hoy-cargar-btn" onclick="openAddFormHoy('${todaySession.type}')">+ Cargar sesión de hoy</button>`;
     } else if(isGym){
-      html+=`<div style="background:var(--bg2);border-radius:var(--radius);padding:12px 16px;text-align:center;margin-top:4px;font-size:13px;color:var(--text2)">
-        Sesión de gym — recordá registrarla en tu app habitual.
-      </div>`;
+      const dow=today.getDay();
+      const gymDayId={3:'mie',4:'jue',5:'vie'}[dow]||null;
+      const gd=GYM_DAYS.find(g=>g.id===gymDayId);
+      if(gd){
+        html+=`<div style="background:${gd.color};border:1px solid ${gd.borderColor};border-radius:var(--radius);padding:10px 14px;margin-top:4px;font-size:12px;color:var(--text);line-height:1.55;margin-bottom:1rem">
+          💡 ${gd.note}
+        </div>`;
+        html+=`<div class="hoy-section-title">Rutina de hoy</div>`;
+        gd.blocks.forEach(b=>{
+          html+=`<div style="margin-bottom:12px">
+            <div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">${b.title}</div>
+            <div class="hoy-focus-card">
+              ${b.exercises.map((e,i)=>`
+                <div class="hoy-focus-item">
+                  <div class="hoy-focus-icon" style="font-size:14px;min-width:20px;color:var(--text3);font-weight:700">${i+1}</div>
+                  <div class="hoy-focus-body">
+                    <div class="hoy-focus-label">${e.name} <span style="font-weight:400;color:var(--text2);font-size:11px">· ${e.sets}</span></div>
+                    ${e.tip?`<div class="hoy-focus-text">${e.tip}</div>`:''}
+                  </div>
+                </div>`).join('')}
+            </div>
+          </div>`;
+        });
+        html+=`<button class="btn btn-sm" style="margin-bottom:1rem" onclick="document.querySelectorAll('.nav-tab')[3].click()">Ver rutina completa con tips →</button>`;
+      } else {
+        html+=`<div style="background:var(--bg2);border-radius:var(--radius);padding:12px 16px;margin-top:4px;font-size:13px;color:var(--text2)">Sesión de gym — revisá la pestaña Gym para ver la rutina.</div>`;
+      }
     } else if(isRest){
       html+=`<div class="hoy-rest" style="margin-top:0">
         <div class="hoy-rest-icon">😴</div>
@@ -627,17 +834,21 @@ function renderHoy(){
     }
   }
 
-  // Análisis IA del día
-  html+=`<div class="hoy-section-title" style="margin-top:1.25rem">Análisis IA del día</div>
-  <div id="hoy-ai-section">
-    <div class="hoy-focus-card" style="padding:12px 14px">
-      <div class="thinking-inline"><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-      <span style="margin-left:8px;font-size:12px;color:var(--text2)">Analizando tu historial...</span></div>
-    </div>
-  </div>`;
+  // Análisis IA del día — solo si hay sesión del plan
+  if(todaySession && !['rest','gym','gymleg'].includes(todaySession?.type)){
+    html+=`<div class="hoy-section-title" style="margin-top:1.25rem">Análisis IA del día</div>
+    <div id="hoy-ai-section">
+      <div class="hoy-focus-card" style="padding:12px 14px">
+        <div class="thinking-inline"><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <span style="margin-left:8px;font-size:12px;color:var(--text2)">Analizando tu historial...</span></div>
+      </div>
+    </div>`;
+  }
 
   c.innerHTML=html;
-  loadHoyAI(todaySession, recent);
+  if(todaySession && !['rest','gym','gymleg'].includes(todaySession?.type)){
+    loadHoyAI(todaySession, recent);
+  }
 }
 
 function buildFocusPoints(session, recent){
@@ -698,8 +909,7 @@ function buildFocusPoints(session, recent){
   // Descanso desde última sesión
   if(recent.length){
     const lastDate=new Date(recent[0].date+'T12:00:00');
-    const today=new Date(); today.setHours(0,0,0,0);
-    const daysSince=Math.floor((today-lastDate)/(1000*60*60*24));
+    const daysSince=daysDiff(lastDate, localToday());
     if(daysSince<=1 && ['tempo','series','long'].includes(session.type)) points.push({
       icon:'⚡',
       label:'Sesión de calidad con poco descanso',
@@ -723,7 +933,7 @@ async function loadHoyAI(session, recent){
   const aiSection=document.getElementById('hoy-ai-section');
   if(!aiSection) return;
 
-  const todayStr=new Date().toISOString().split('T')[0];
+  const todayStr=todayLocalStr();
   if(hoyAiCache[todayStr]){ aiSection.innerHTML=hoyAiCache[todayStr]; return; }
 
   mejAiKey=mejAiKey||localStorage.getItem('mejoras_api_key')||null;
@@ -773,7 +983,7 @@ async function loadHoyAI(session, recent){
 
 function openAddFormHoy(type){
   openAddForm();
-  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('f-date').value=todayLocalStr();
   document.getElementById('f-type').value=type||'easy';
 }
 
@@ -928,7 +1138,7 @@ function renderChart(){
 function openAddForm(){
   editIndex=null;
   document.getElementById('modal-title').textContent='Registrar carrera';
-  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('f-date').value=todayLocalStr();
   ['f-distance','f-time','f-hr','f-hrmax','f-pacemax','f-cadence','f-kcal','f-rpe','f-splits','f-z-aero','f-z-anaero','f-z-intense','f-notes']
     .forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-type').selectedIndex=0;
@@ -1027,7 +1237,7 @@ async function scanImage(){
 }
 function confirmScan(jsonStr){
   const ex=JSON.parse(jsonStr);
-  const run={date:ex.date||new Date().toISOString().split('T')[0],type:ex.type||'easy',
+  const run={date:ex.date||todayLocalStr(),type:ex.type||'easy',
     distance:parseFloat(ex.distance)||0,time:ex.time||'',hr:ex.hr||'',hrmax:ex.hrmax||'',
     pacemax:ex.paceMax||'',cadence:ex.cadence||'',kcal:ex.kcal||'',rpe:'',
     splits:ex.splits||[],zones:ex.zones||null,notes:'',pace:paceRaw(parseFloat(ex.distance),parseTime(ex.time))};
@@ -1063,7 +1273,17 @@ async function generateAIPlan(){
 /* ══════════════════════════════════════════
    PLAN 21K DATA
 ══════════════════════════════════════════ */
-const PLAN_START = new Date('2026-04-07');
+const PLAN_START = new Date('2026-04-07T00:00:00'); // hora local, no UTC
+
+// Devuelve la fecha de hoy en hora local, sin componente horario
+function localToday(){
+  const d=new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+// Diferencia en días entre dos fechas locales
+function daysDiff(a, b){
+  return Math.round((b-a)/(1000*60*60*24));
+}
 const PLAN_WEEKS = [
   { n:1,phase:'base',title:'Base — arranque',km:26,tip:'Semana de calibración. El jueves no corrés: el gym de piernas ya es suficiente estímulo.',days:[
     {d:'Lun',type:'easy',badge:'t-easy',desc:'Rodaje fácil — 8 km a 6:30–7:00/km. FC por debajo de 145.',km:'8 km',run:true},
@@ -1243,43 +1463,46 @@ const TYPE_NAMES = { gym:'gym sup',gymleg:'gym piernas',easy:'fácil',tempo:'tem
 
 /* ── Countdown ── */
 function daysUntil(dateStr){
-  const today=new Date(); today.setHours(0,0,0,0);
-  const target=new Date(dateStr+'T00:00:00');
-  return Math.ceil((target-today)/(1000*60*60*24));
+  const parts=dateStr.split('-').map(Number);
+  const target=new Date(parts[0],parts[1]-1,parts[2]);
+  return daysDiff(localToday(), target);
 }
-function countdownHTML(days, colorClass){
-  if(days<0) return `<div style="font-size:11px;opacity:0.6;margin-top:6px">Ya corrida ✓</div>`;
-  if(days===0) return `<div style="font-size:13px;font-weight:700;margin-top:6px">¡HOY!</div>`;
+function countdownHTML(days, isDark){
+  if(days<0) return `<div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-top:6px">Ya corrida ✓</div>`;
+  if(days===0) return `<div style="font-size:18px;font-weight:900;color:#fff;margin-top:6px;letter-spacing:-.02em">¡HOY!</div>`;
   const w=Math.floor(days/7), d=days%7;
-  return `<div class="countdown-box ${colorClass}">
-    <div class="cd-unit"><span class="cd-num">${days}</span><span class="cd-lbl">días</span></div>
-    <div class="cd-unit"><span class="cd-num">${w}</span><span class="cd-lbl">sem</span></div>
-    <div class="cd-unit"><span class="cd-num">${d}</span><span class="cd-lbl">días+</span></div>
+  const numColor=isDark?'#fff':'#fff';
+  const lblColor=isDark?'#A5B4FC':'#A5B4FC';
+  return `<div style="display:flex;gap:6px;margin-top:10px">
+    <div style="display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.12);border-radius:6px;padding:6px 10px;min-width:44px">
+      <span style="font-size:22px;font-weight:900;color:${numColor};line-height:1;letter-spacing:-.02em">${days}</span>
+      <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${lblColor};margin-top:2px">días</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.08);border-radius:6px;padding:6px 10px;min-width:44px">
+      <span style="font-size:22px;font-weight:900;color:${numColor};line-height:1;letter-spacing:-.02em">${w}</span>
+      <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${lblColor};margin-top:2px">sem</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.08);border-radius:6px;padding:6px 10px;min-width:44px">
+      <span style="font-size:22px;font-weight:900;color:${numColor};line-height:1;letter-spacing:-.02em">${d}</span>
+      <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${lblColor};margin-top:2px">días+</span>
+    </div>
   </div>`;
 }
 function renderRaceBanners(){
   const d1=daysUntil('2026-06-07'), d2=daysUntil('2026-08-23');
   document.getElementById('race-banners-container').innerHTML=`
-  <div class="race-banners">
-    <div class="race-banner race-banner-adizero" style="background:#EEEDFE;border-color:#AFA9EC;flex-direction:column;align-items:flex-start">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:22px">🏁</span>
-        <div>
-          <div style="font-size:13px;color:#3C3489;font-weight:600">15K Adizero</div>
-          <div style="font-size:11px;color:#534AB7">7 jun 2026 · salí a 6:05/km</div>
-        </div>
-      </div>
-      ${countdownHTML(d1,'race-banner-adizero')}
+  <div style="display:flex;gap:8px;margin-bottom:1.25rem">
+    <div style="flex:1;background:var(--slate);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;top:-10px;width:60px;height:60px;border-radius:50%;background:var(--accent);opacity:.2"></div>
+      <div style="font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:4px">🏁 15K Adizero</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748B;margin-bottom:2px">7 jun 2026 · salí a 6:05/km</div>
+      ${countdownHTML(d1,true)}
     </div>
-    <div class="race-banner race-banner-21k" style="background:#E1F5EE;border-color:#5DCAA5;flex-direction:column;align-items:flex-start">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:22px">🏆</span>
-        <div>
-          <div style="font-size:13px;color:#085041;font-weight:600">21K Buenos Aires</div>
-          <div style="font-size:11px;color:#0F6E56">23 ago 2026 · pace objetivo 6:10/km</div>
-        </div>
-      </div>
-      ${countdownHTML(d2,'race-banner-21k')}
+    <div style="flex:1;background:var(--accent);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;top:-10px;width:60px;height:60px;border-radius:50%;background:#fff;opacity:.1"></div>
+      <div style="font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#A5B4FC;margin-bottom:4px">🏆 21K Buenos Aires</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#818CF8;margin-bottom:2px">23 ago 2026 · objetivo 6:10/km</div>
+      ${countdownHTML(d2,true)}
     </div>
   </div>`;
 }
@@ -1287,11 +1510,9 @@ function renderRaceBanners(){
 /* ── Plan render — semana actual expandida, resto colapsado ── */
 let planRendered=false;
 function currentPlanWeek(){
-  const today=new Date(); today.setHours(0,0,0,0);
-  const diffDays=Math.floor((today-PLAN_START)/(1000*60*60*24));
+  const diffDays=daysDiff(PLAN_START, localToday());
   if(diffDays<0) return 1;
-  const w=Math.floor(diffDays/7)+1;
-  return Math.min(w, PLAN_WEEKS.length);
+  return Math.min(Math.floor(diffDays/7)+1, PLAN_WEEKS.length);
 }
 
 function renderPlan(){
@@ -1349,134 +1570,10 @@ function toggleAll(){
   PLAN_WEEKS.forEach(w=>{ document.getElementById('wbody-'+w.n).classList.toggle('open',allOpen); document.getElementById('chev-'+w.n).classList.toggle('open',allOpen); });
 }
 
-/* ── ICS Export ── */
-function exportICS(){
-  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Plan 21K Mariano//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
-  const emoji={easy:'🟢',tempo:'🔵',long:'🟣',gym:'🏋',gymleg:'🦵',series:'🩷',race:'🏁'};
-  PLAN_WEEKS.forEach(w=>{
-    const ws=new Date(PLAN_START); ws.setDate(PLAN_START.getDate()+(w.n-1)*7);
-    w.days.forEach((day,idx)=>{
-      if(day.type==='rest') return;
-      const dt=new Date(ws); dt.setDate(ws.getDate()+idx);
-      const ds=fmtDate(dt);
-      const sum=`${emoji[day.type]||'⚪'} Sem ${w.n}: ${TYPE_NAMES[day.type]||day.type}${day.km?' — '+day.km:''}`;
-      lines.push('BEGIN:VEVENT',`DTSTART;VALUE=DATE:${ds}`,`DTEND;VALUE=DATE:${ds}`,
-        `SUMMARY:${sum}`,`DESCRIPTION:${day.desc.replace(/,/g,'\\,')}`,
-        `UID:plan21k-s${w.n}-d${idx}@mariano`,'END:VEVENT');
-    });
-  });
-  lines.push('END:VCALENDAR');
-  const b=new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='plan_21k_mariano.ics'; a.click();
-}
-
-/* ── Telegram ── */
-async function testTelegram(){
-  const token=document.getElementById('tg-token').value.trim();
-  const chatId=document.getElementById('tg-chatid').value.trim();
-  const res=document.getElementById('tg-result');
-  if(!token||!chatId){res.innerHTML='<span style="color:var(--red)">Completá token y chat ID.</span>';return;}
-  res.innerHTML='Probando...';
-  try{
-    const r=await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({chat_id:chatId,text:'✅ Conexión exitosa desde tu Running App. Las notificaciones están configuradas correctamente.'})
-    });
-    const d=await r.json();
-    res.innerHTML=d.ok?'<span style="color:var(--green)">✅ Mensaje enviado. Revisá Telegram.</span>':'<span style="color:var(--red)">Error: '+d.description+'</span>';
-  }catch(e){res.innerHTML='<span style="color:var(--red)">Error de conexión.</span>';}
-}
-
-function downloadTelegramScript(){
-  const token=document.getElementById('tg-token').value.trim()||'TU_BOT_TOKEN';
-  const chatId=document.getElementById('tg-chatid').value.trim()||'TU_CHAT_ID';
-  const plan={};
-  PLAN_WEEKS.forEach(w=>{
-    const ws=new Date(PLAN_START); ws.setDate(PLAN_START.getDate()+(w.n-1)*7);
-    w.days.forEach((day,idx)=>{
-      if(day.type==='rest') return;
-      const dt=new Date(ws); dt.setDate(ws.getDate()+idx);
-      const key=dt.toISOString().split('T')[0];
-      plan[key]=`Sem ${w.n} · ${TYPE_NAMES[day.type]||day.type}${day.km?' — '+day.km:''}\n${day.desc}`;
-    });
-  });
-  const script=`#!/usr/bin/env python3
-# Plan 21K Mariano — Notificador Telegram
-# pip install requests
-# Correr diariamente o configurar en cron-job.org (gratis)
-
-import requests
-from datetime import date
-
-BOT_TOKEN = "${token}"
-CHAT_ID = "${chatId}"
-
-PLAN = ${JSON.stringify(plan,null,2).replace(/"/g,"'").replace(/\\n/g,'\\n')}
-
-def main():
-    today = date.today().isoformat()
-    if today in PLAN:
-        msg = f"🏃 *Hoy toca entrenar!*\\n\\n{PLAN[today]}"
-        requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-            json={"chat_id": CHAT_ID, "text": msg})
-        print(f"Notificacion enviada para {today}")
-    else:
-        print(f"Hoy ({today}) es dia de descanso.")
-
-if __name__ == "__main__":
-    main()
-`;
-  const b=new Blob([script],{type:'text/plain'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='notify_telegram.py'; a.click();
-}
-
-function downloadWAScript(){
-  const phone=document.getElementById('wa-phone').value.trim()||'TU_NUMERO';
-  const apikey=document.getElementById('wa-apikey').value.trim()||'TU_APIKEY';
-  const plan={};
-  PLAN_WEEKS.forEach(w=>{
-    const ws=new Date(PLAN_START); ws.setDate(PLAN_START.getDate()+(w.n-1)*7);
-    w.days.forEach((day,idx)=>{
-      if(day.type==='rest') return;
-      const dt=new Date(ws); dt.setDate(ws.getDate()+idx);
-      const key=dt.toISOString().split('T')[0];
-      plan[key]=`Sem ${w.n} - ${TYPE_NAMES[day.type]||day.type}${day.km?' - '+day.km:''}: ${day.desc}`;
-    });
-  });
-  const script=`#!/usr/bin/env python3
-# Plan 21K Mariano — Notificador WhatsApp via CallMeBot
-# Activar primero: mandá "I allow callmebot to send me messages" al +34 644 59 74 74
-# pip install requests
-
-import requests
-from urllib.parse import quote
-from datetime import date
-
-PHONE = "${phone}"
-APIKEY = "${apikey}"
-
-PLAN = ${JSON.stringify(plan,null,2).replace(/"/g,"'").replace(/\\n/g,' ')}
-
-def main():
-    today = date.today().isoformat()
-    if today in PLAN:
-        msg = f"Plan 21K: {PLAN[today]}"
-        requests.get(f"https://api.callmebot.com/whatsapp.php?phone={PHONE}&text={quote(msg)}&apikey={APIKEY}")
-        print("Enviado.")
-    else:
-        print(f"Hoy ({today}) es descanso.")
-
-if __name__ == "__main__":
-    main()
-`;
-  const b=new Blob([script],{type:'text/plain'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='notify_whatsapp.py'; a.click();
-}
-
 /* ══════════════════════════════════════════
    MEJORAS
 ══════════════════════════════════════════ */
-let mejAiKey = null;
+let mejAiKey = localStorage.getItem('mejoras_api_key') || null;
 
 function renderMejoras(forceRefresh){
   const c = document.getElementById('mejoras-container');
@@ -1771,18 +1868,19 @@ Formato de respuesta: usá secciones con títulos precedidos por "###". Máximo 
 ══════════════════════════════════════════ */
 function renderGap(){
   const c=document.getElementById('gap-container');
-  const today=new Date(); today.setHours(0,0,0,0);
+  const today=localToday();
 
   // ── Semana en curso ──
-  const diffDays=Math.floor((today-PLAN_START)/(1000*60*60*24));
+  const diffDays=daysDiff(PLAN_START, today);
   const curWeekIdx=Math.max(0,Math.min(Math.floor(diffDays/7), PLAN_WEEKS.length-1));
   const curWeek=PLAN_WEEKS[curWeekIdx];
 
   // Inicio y fin de la semana actual
-  const weekStart=new Date(PLAN_START); weekStart.setDate(PLAN_START.getDate()+curWeekIdx*7);
-  const weekEnd=new Date(weekStart); weekEnd.setDate(weekStart.getDate()+6);
-  const weekStartStr=weekStart.toISOString().split('T')[0];
-  const weekEndStr=weekEnd.toISOString().split('T')[0];
+  const weekStart=new Date(PLAN_START.getFullYear(), PLAN_START.getMonth(), PLAN_START.getDate()+curWeekIdx*7);
+  const weekEnd=new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()+6);
+  function localStr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+  const weekStartStr=localStr(weekStart);
+  const weekEndStr=localStr(weekEnd);
 
   // Km objetivo de la semana (del plan, solo sesiones de running)
   const weekTargetKm=curWeek?curWeek.km:0;
@@ -1813,8 +1911,8 @@ function renderGap(){
   totalTargetKm+=weekTargetKm*(dayOfWeek/7);
 
   // Km reales acumulados desde inicio del plan
-  const planStartStr=PLAN_START.toISOString().split('T')[0];
-  const todayStr=today.toISOString().split('T')[0];
+  const planStartStr=localStr(PLAN_START);
+  const todayStr=localStr(today);
   const totalActualKm=runs.filter(r=>r.date&&r.date>=planStartStr&&r.date<=todayStr)
     .reduce((a,r)=>a+(parseFloat(r.distance)||0),0);
 
