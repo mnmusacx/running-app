@@ -224,12 +224,12 @@ textarea { resize: vertical; min-height: 60px; }
 .gym-note { background: var(--bg2); border-radius: var(--radius-sm); padding: 8px 12px; margin: 10px 16px; font-size: 12px; color: var(--text2); line-height: 1.55; }
 .gym-note strong { color: var(--text); }
 .gym-phase-note { background: #E6F1FB; border: 0.5px solid #85B7EB; border-radius: var(--radius); padding: 10px 14px; margin-bottom: 12px; font-size: 12px; color: #0C447C; line-height: 1.55; }
-.gym-progress-box { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 12px; }
-.gym-progress-title { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
-.gym-prog-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 0.5px solid var(--border); font-size: 12px; }
+.gym-progress-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 12px; }
+.gym-progress-title { font-size: 9px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .14em; margin-bottom: 10px; }
+.gym-prog-row { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .gym-prog-row:last-child { border-bottom: none; }
-.gym-prog-label { color: var(--text2); }
-.gym-prog-val { font-weight: 600; color: var(--text); }
+.gym-prog-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .1em; }
+.gym-prog-val { font-size: 13px; font-weight: 600; color: var(--slate); }
 
 /* ── Mejoras ── */
 .mejora-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 10px; }
@@ -330,7 +330,6 @@ textarea { resize: vertical; min-height: 60px; }
     <button class="sub-tab" onclick="switchSub('tracker','gap');renderGap()">GAP objetivo</button>
     <button class="sub-tab" onclick="switchSub('tracker','mejoras');renderMejoras()">Mejoras</button>
     <button class="sub-tab" onclick="switchSub('tracker','scan')">Foto</button>
-    <button class="sub-tab" onclick="switchSub('tracker','ai-plan')">Plan IA</button>
   </div>
 
   <div id="tracker-log" class="sub-content active"><div id="runs-container"></div></div>
@@ -367,16 +366,6 @@ textarea { resize: vertical; min-height: 60px; }
     <div id="scan-output"></div>
   </div>
 
-  <div id="tracker-ai-plan" class="sub-content">
-    <div class="card" style="margin-bottom:1rem">
-      <p style="font-size:14px;color:var(--text2);margin-bottom:1rem">Describí tu objetivo y el asistente genera un plan basado en tu historial real.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input type="text" id="plan-input" placeholder="Ej: quiero bajar de 50' en 10K, entreno 4 días" style="flex:1;min-width:180px" />
-        <button class="btn btn-primary" onclick="generateAIPlan()">Generar plan</button>
-      </div>
-    </div>
-    <div id="ai-plan-output"></div>
-  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -504,30 +493,50 @@ function showPage(id) {
 ══════════════════════════════════════════ */
 const GYM_DAYS = [
   {
-    id:'mie', day:'Miércoles', icon:'💪', focus:'Push — Pecho · Hombros · Tríceps',
+    id:'mie', day:'Miércoles', icon:'💪', focus:'Push + Hombros + Core',
     color:'#E6F1FB', borderColor:'#85B7EB',
     note:'Hacé este día en ayunas o con un snack liviano. El running de la tarde no se ve afectado por el tren superior.',
     blocks:[
-      { title:'Activación (5 min)',
+      { title:'Activación',
         exercises:[
           { name:'Band pull-apart', sets:'2 × 15', tip:'Agarrás una banda con ambas manos al frente y la separás hacia los costados hasta tocar el pecho. Activa manguito rotador y previene lesiones de hombro.', tags:['core'] },
         ]},
       { title:'Pecho',
         exercises:[
           { name:'Press banca con barra', sets:'4 × 8–10', tip:'Bajá la barra controlado (2 seg), empujá explosivo. Codo a 75°.', tags:['compound'] },
-          { name:'Press inclinado con mancuernas', sets:'3 × 10–12', tip:'Inclinación 30–45°. Foco en parte superior del pecho.', tags:['compound'] },
-          { name:'Aperturas en polea baja (cable fly)', sets:'3 × 12–15', tip:'Arco amplio, juntá las manos con leve rotación interna.', tags:['iso'] },
+          { name:'Press militar con mancuernas', sets:'3 × 10–12', tip:'No hiperextendas la zona lumbar. Core apretado durante todo el movimiento.', tags:['compound'] },
+          { name:'Cable fly (aperturas en polea baja)', sets:'3 × 12–15', tip:'Arco amplio, juntá las manos con leve rotación interna al final. Foco en el estiramiento del pecho.', tags:['iso'] },
         ]},
       { title:'Hombros',
         exercises:[
-          { name:'Press militar con barra (o mancuernas)', sets:'4 × 8–10', tip:'No hiperextendas la zona lumbar. Core apretado durante todo el movimiento.', tags:['compound'] },
-          { name:'Elevaciones laterales', sets:'3 × 12–15', tip:'Codo ligeramente doblado, bajá lento. No uses impulso.', tags:['iso'] },
-          { name:'Face pull en polea', sets:'3 × 15', tip:'Polea alta con cuerda. Jalás hacia tu cara separando los extremos, codos arriba. Fundamental para la salud del hombro.', tags:['iso','run'] },
+          { name:'Face pull en polea', sets:'3 × 15', tip:'Polea alta con cuerda. Jalás hacia tu cara separando los extremos, codos arriba. Contrarresta el trabajo del press y protege el hombro.', tags:['iso','run'] },
         ]},
-      { title:'Tríceps',
+      { title:'Abdominales',
         exercises:[
-          { name:'Press francés con barra EZ', sets:'3 × 10–12', tip:'Acostado en el banco, bajás la barra hacia la frente doblando solo el codo. Codos fijos apuntando al techo.', tags:['iso'] },
-          { name:'Extensión en polea alta (rope)', sets:'3 × 12–15', tip:'Separás la cuerda al final del recorrido.', tags:['iso'] },
+          { name:'Pallof press en polea', sets:'3 × 10 c/lado', tip:'De pie al costado de la polea, extendés los brazos al frente sin rotar el torso. Anti-rotación pura. Muy específico para la estabilidad al correr.', tags:['core','run'] },
+        ]},
+    ]
+  },
+  {
+    id:'jue', day:'Jueves', icon:'🦵', focus:'Piernas + Hombros + Core',
+    color:'#FAECE7', borderColor:'#F0997B',
+    note:'El día más completo. RDL y hip thrust usan la misma barra — hacélos seguidos para no perder tiempo cambiando discos. Sin running este día.',
+    blocks:[
+      { title:'Activación',
+        exercises:[
+          { name:'Monster walk con banda', sets:'2 × 15 pasos c/lado', tip:'Banda elástica en rodillas o tobillos. Posición semi-sentada, caminás hacia los costados manteniendo la tensión. Activa glúteo medio y previene colapso de rodilla al correr.', tags:['run','core'] },
+        ]},
+      { title:'Piernas',
+        exercises:[
+          { name:'Sentadilla con barra', sets:'4 × 6–8', tip:'Profundidad al menos paralela. Rodillas alineadas con pies. El ejercicio más importante del día.', tags:['compound','run'] },
+          { name:'Romanian deadlift (RDL)', sets:'4 × 8–10', tip:'Bisagra de cadera pura. La barra roza las piernas todo el tiempo. Usá la misma barra para el hip thrust a continuación.', tags:['compound','run'] },
+          { name:'Hip thrust con barra', sets:'4 × 10–12', tip:'Misma barra del RDL. Empujá con los talones, pausa 1 seg arriba apretando el glúteo.', tags:['compound','run'] },
+          { name:'Curl femoral en máquina', sets:'3 × 12', tip:'Isquiotibiales son el músculo más lesionado en running. Fortalecelos bien.', tags:['iso','run'] },
+          { name:'Calf raise de pie', sets:'3 × 15–20', tip:'Pausa de 1 seg arriba. Vas a notar la diferencia en las últimas subidas del 21K.', tags:['iso','run'] },
+        ]},
+      { title:'Hombros',
+        exercises:[
+          { name:'Elevaciones laterales', sets:'3 × 12–15', tip:'Codo ligeramente doblado, bajá lento. No uses impulso. Hombro lateral puro.', tags:['iso'] },
         ]},
       { title:'Abdominales',
         exercises:[
@@ -536,60 +545,30 @@ const GYM_DAYS = [
     ]
   },
   {
-    id:'jue', day:'Jueves', icon:'🦵', focus:'Piernas — Cuádriceps · Isquiotibiales · Glúteos · Pantorrillas',
-    color:'#FAECE7', borderColor:'#F0997B',
-    note:'Este día es clave para el running. Los glúteos y los isquios son los motores de cada zancada. No lo salteés aunque el miércoles hayas entrenado fuerte.',
-    blocks:[
-      { title:'Activación (5 min)',
-        exercises:[
-          { name:'Monster walk con banda', sets:'2 × 15 pasos c/lado', tip:'Banda elástica en rodillas o tobillos. Posición semi-sentada, caminás hacia los costados manteniendo la tensión. Activa glúteo medio y previene colapso de rodilla al correr.', tags:['run','core'] },
-        ]},
-      { title:'Cuádriceps / Glúteos',
-        exercises:[
-          { name:'Sentadilla con barra (back squat)', sets:'4 × 6–8', tip:'Profundidad al menos paralela. Rodillas alineadas con pies. Este es el ejercicio más importante del día.', tags:['compound','run'] },
-          { name:'Prensa 45°', sets:'3 × 10–12', tip:'Pie alto y separado = más glúteo. Pie bajo = más cuádriceps.', tags:['compound'] },
-          { name:'Zancadas con mancuernas (walking lunges)', sets:'3 × 10 c/pierna', tip:'Muy específico para running. Tronco erguido, rodilla delantera no pasa el pie.', tags:['compound','run'] },
-        ]},
-      { title:'Isquiotibiales / Glúteos',
-        exercises:[
-          { name:'Romanian deadlift (RDL) con barra', sets:'4 × 8–10', tip:'Bisagra de cadera pura. La barra roza las piernas todo el tiempo. Clave para isquios y glúteos.', tags:['compound','run'] },
-          { name:'Hip thrust con barra', sets:'3 × 10–12', tip:'El mejor ejercicio de glúteo. Empujá el piso con los talones, no con la planta.', tags:['compound','run'] },
-          { name:'Curl femoral en máquina (tumbado)', sets:'3 × 12', tip:'Isquiotibiales son el músculo más lesionado en running. Fortalecelos bien.', tags:['iso','run'] },
-        ]},
-      { title:'Pantorrillas',
-        exercises:[
-          { name:'Calf raise de pie', sets:'4 × 15–20', tip:'Pausa de 1 seg arriba. Vas a notar la diferencia en las últimas subidas del 21K.', tags:['iso','run'] },
-        ]},
-      { title:'Abdominales',
-        exercises:[
-          { name:'Rueda de abdominales (ab wheel)', sets:'3 × 10', tip:'De rodillas, rodás hacia adelante con brazos extendidos hasta casi tocar el piso y volvés. Si no tenés rueda, hacé el movimiento apoyando las manos en el piso.', tags:['core','run'] },
-        ]},
-    ]
-  },
-  {
-    id:'vie', day:'Viernes', icon:'🏋', focus:'Pull — Espalda · Bíceps · Core',
+    id:'vie', day:'Viernes', icon:'🏋', focus:'Pull + Cuádriceps + Core',
     color:'#EAF3DE', borderColor:'#97C459',
-    note:'Tarde/noche hacés el running de calidad (tempo o series). El pull de mañana no compromete las piernas ni la capacidad aeróbica.',
+    note:'Tarde/noche hacés el running de calidad (tempo o series). El pull de mañana no compromete las piernas. Las zancadas al final son específicas para el running.',
     blocks:[
-      { title:'Activación (5 min)',
+      { title:'Activación',
         exercises:[
-          { name:'Cat-cow', sets:'2 × 10 respiraciones', tip:'En cuatro apoyos (manos y rodillas). Alternás entre arquear la espalda hacia arriba (cat) y hundirla levantando la cabeza (cow). Movilidad de columna antes de los remos pesados.', tags:['core'] },
+          { name:'Cat-cow', sets:'2 × 10 respiraciones', tip:'En cuatro apoyos, alternás entre arquear la espalda hacia arriba (cat) y hundirla levantando la cabeza (cow). Movilidad de columna antes de los remos pesados.', tags:['core'] },
         ]},
       { title:'Espalda',
         exercises:[
-          { name:'Dominadas (o jalón al pecho en polea)', sets:'4 × 6–10', tip:'Si hacés jalón: codos bajan a los costados del torso, no atrás. Agarre supino o neutro.', tags:['compound'] },
-          { name:'Remo con barra (bent-over row)', sets:'4 × 8–10', tip:'Espalda recta, codo cerca del cuerpo, jalás hacia el ombligo. Retrae la escápula.', tags:['compound'] },
-          { name:'Remo en polea sentado (cable row)', sets:'3 × 12', tip:'Pausa de 1 seg apretando la escápula al final del movimiento.', tags:['compound'] },
-          { name:'Pullover con mancuerna', sets:'3 × 12–15', tip:'Acostado en el banco, mancuerna con ambas manos por encima del pecho, brazos casi rectos. Bajás hacia atrás de la cabeza hasta sentir estiramiento en el dorsal y volvés.', tags:['iso'] },
+          { name:'Dominadas (o jalón al pecho)', sets:'4 × 6–10', tip:'Si hacés jalón: codos bajan a los costados del torso, no atrás. Agarre supino o neutro.', tags:['compound'] },
+          { name:'Remo con barra', sets:'4 × 8–10', tip:'Espalda recta, codo cerca del cuerpo, jalás hacia el ombligo. Retrae la escápula al final.', tags:['compound'] },
         ]},
       { title:'Bíceps',
         exercises:[
           { name:'Curl con barra EZ', sets:'3 × 10–12', tip:'Codos fijos al costado del cuerpo. No te balancees.', tags:['iso'] },
-          { name:'Curl martillo con mancuernas', sets:'3 × 12', tip:'Trabaja braquial y braquiorradial. Mejor agarre para running.', tags:['iso'] },
+        ]},
+      { title:'Cuádriceps / Glúteos',
+        exercises:[
+          { name:'Zancadas con mancuernas (walking lunges)', sets:'3 × 10 c/pierna', tip:'Tronco erguido, rodilla delantera no pasa el pie. Muy específico para running — simula el patrón de zancada.', tags:['compound','run'] },
         ]},
       { title:'Abdominales',
         exercises:[
-          { name:'Crunch en polea alta (cable crunch)', sets:'3 × 15', tip:'De rodillas frente a la polea alta con la cuerda en la nuca. Flexionás el torso hacia abajo contrayendo el abdomen, sin mover las caderas. Controlá la subida.', tags:['core','run'] },
+          { name:'Crunch en polea alta', sets:'3 × 15', tip:'De rodillas frente a la polea con la cuerda en la nuca. Flexionás el torso hacia abajo contrayendo el abdomen. No muevas las caderas.', tags:['core'] },
         ]},
     ]
   },
@@ -992,6 +971,10 @@ function openAddFormHoy(type){
 ══════════════════════════════════════════ */
 const STORAGE_KEY = 'mariano_running_v1';
 const INITIAL_DATA = [
+  { date:'2026-04-07', type:'easy', distance:7.26, time:'46:52', hr:141, hrmax:159, pacemax:'6:13', cadence:151, kcal:496, rpe:6,
+    splits:['6:35','6:23','6:26','6:32','6:25','6:28','6:24','6:23'],
+    zones:{aero:41,anaero:3,intense:3},
+    notes:'Primer rodaje del plan. Sem 1 · Lun. 5km en 32:21. FC muy controlada en zona aeróbica.' },
   { date:'2026-04-05', type:'long', distance:15.00, time:'1:36:00', hr:148, hrmax:175, pacemax:'5:57', cadence:102, kcal:1026, rpe:7,
     splits:['6:14','6:42','6:10','6:19','6:37','5:43','6:22','6:58','6:35','6:17'],
     zones:{aero:57,anaero:33,intense:4}, notes:'Ruta costanera Olivos → Acassuso. 5km en 32:02, 10km en 1:03:57.' },
@@ -1202,7 +1185,8 @@ async function scanImage(){
   if(!scanB64)return;
   const out=document.getElementById('scan-output');
   out.innerHTML=`<div class="card"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:8px;font-size:13px;color:var(--text2)">Analizando...</span></div></div>`;
-  const apiKey=prompt('Anthropic API key:'); if(!apiKey){out.innerHTML='';return;}
+  const apiKey=mejAiKey||localStorage.getItem('mejoras_api_key');
+  if(!apiKey){ out.innerHTML=`<div class="card" style="font-size:13px;color:var(--text2);padding:1rem">Configurá tu API key en <strong>Carreras → Mejoras</strong> para usar esta función.</div>`; return; }
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
@@ -1247,42 +1231,23 @@ function confirmScan(jsonStr){
 }
 
 /* ── AI Plan ── */
-async function generateAIPlan(){
-  const input=document.getElementById('plan-input').value.trim();
-  if(!input){alert('Describí tu objetivo');return;}
-  const out=document.getElementById('ai-plan-output');
-  out.innerHTML=`<div class="card"><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:8px;font-size:13px;color:var(--text2)">Generando plan...</span></div></div>`;
-  const apiKey=prompt('Anthropic API key:'); if(!apiKey){out.innerHTML='';return;}
-  const totalKm=runs.reduce((a,r)=>a+(parseFloat(r.distance)||0),0).toFixed(1);
-  const bp=runs.filter(r=>r.pace).reduce((b,r)=>b===null||r.pace<b?r.pace:b,null);
-  const summary=`Mariano, 33 años, 1.95m/81kg. ${runs.length} carreras registradas, ${totalKm} km totales. Mejor pace: ${paceStr(bp)} min/km. Objetivo: 21K Buenos Aires 23/08/2026.`;
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
-        system:'Coach de running experto. Respondés en español, conciso, sin markdown con asteriscos.',
-        messages:[{role:'user',content:`${summary}\nObjetivo: "${input}"\nPlan 4 semanas, específico y práctico.`}]
-      })
-    });
-    const data=await resp.json();
-    const text=data.content?.find(b=>b.type==='text')?.text||'Error.';
-    out.innerHTML=`<div class="ai-box">${text}</div>`;
-  }catch(e){ out.innerHTML=`<div class="card" style="color:var(--red)">Error: ${e.message}</div>`; }
-}
 
 /* ══════════════════════════════════════════
    PLAN 21K DATA
 ══════════════════════════════════════════ */
-const PLAN_START = new Date('2026-04-07T00:00:00'); // hora local, no UTC
+const PLAN_START = new Date(2026, 3, 6); // lunes 6 de abril — primer lunes de la semana 1
 
 // Devuelve la fecha de hoy en hora local, sin componente horario
 function localToday(){
   const d=new Date();
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
-// Diferencia en días entre dos fechas locales
+// Diferencia en días entre dos fechas locales — usa aritmética pura sin milisegundos
 function daysDiff(a, b){
-  return Math.round((b-a)/(1000*60*60*24));
+  const msPerDay=1000*60*60*24;
+  const utcA=Date.UTC(a.getFullYear(),a.getMonth(),a.getDate());
+  const utcB=Date.UTC(b.getFullYear(),b.getMonth(),b.getDate());
+  return Math.round((utcB-utcA)/msPerDay);
 }
 const PLAN_WEEKS = [
   { n:1,phase:'base',title:'Base — arranque',km:26,tip:'Semana de calibración. El jueves no corrés: el gym de piernas ya es suficiente estímulo.',days:[
@@ -1473,18 +1438,18 @@ function countdownHTML(days, isDark){
   const w=Math.floor(days/7), d=days%7;
   const numColor=isDark?'#fff':'#fff';
   const lblColor=isDark?'#A5B4FC':'#A5B4FC';
-  return `<div style="display:flex;gap:6px;margin-top:10px">
-    <div style="display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.12);border-radius:6px;padding:6px 10px;min-width:44px">
-      <span style="font-size:22px;font-weight:900;color:${numColor};line-height:1;letter-spacing:-.02em">${days}</span>
-      <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${lblColor};margin-top:2px">días</span>
+  return `<div style="display:flex;gap:6px;margin-top:10px;justify-content:center">
+    <div style="display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.12);border-radius:6px;padding:8px 12px;min-width:48px">
+      <span style="font-size:30px;font-weight:900;color:${numColor};line-height:1;letter-spacing:-.02em">${days}</span>
+      <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${lblColor};margin-top:3px">días</span>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.08);border-radius:6px;padding:6px 10px;min-width:44px">
-      <span style="font-size:22px;font-weight:900;color:${numColor};line-height:1;letter-spacing:-.02em">${w}</span>
-      <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${lblColor};margin-top:2px">sem</span>
+    <div style="display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.08);border-radius:6px;padding:8px 12px;min-width:48px">
+      <span style="font-size:30px;font-weight:900;color:${numColor};line-height:1;letter-spacing:-.02em">${w}</span>
+      <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${lblColor};margin-top:3px">sem</span>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.08);border-radius:6px;padding:6px 10px;min-width:44px">
-      <span style="font-size:22px;font-weight:900;color:${numColor};line-height:1;letter-spacing:-.02em">${d}</span>
-      <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${lblColor};margin-top:2px">días+</span>
+    <div style="display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.08);border-radius:6px;padding:8px 12px;min-width:48px">
+      <span style="font-size:30px;font-weight:900;color:${numColor};line-height:1;letter-spacing:-.02em">${d}</span>
+      <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${lblColor};margin-top:3px">días+</span>
     </div>
   </div>`;
 }
@@ -1492,16 +1457,16 @@ function renderRaceBanners(){
   const d1=daysUntil('2026-06-07'), d2=daysUntil('2026-08-23');
   document.getElementById('race-banners-container').innerHTML=`
   <div style="display:flex;gap:8px;margin-bottom:1.25rem">
-    <div style="flex:1;background:var(--slate);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden">
-      <div style="position:absolute;right:-10px;top:-10px;width:60px;height:60px;border-radius:50%;background:var(--accent);opacity:.2"></div>
-      <div style="font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:4px">🏁 15K Adizero</div>
-      <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748B;margin-bottom:2px">7 jun 2026 · salí a 6:05/km</div>
+    <div style="flex:1;background:var(--slate);border-radius:var(--radius);padding:20px 16px;position:relative;overflow:hidden;text-align:center">
+      <div style="position:absolute;right:-10px;top:-10px;width:80px;height:80px;border-radius:50%;background:var(--accent);opacity:.2"></div>
+      <div style="font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:6px">🏁 15K Adizero</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748B;margin-bottom:4px">7 jun 2026 · salí a 6:05/km</div>
       ${countdownHTML(d1,true)}
     </div>
-    <div style="flex:1;background:var(--accent);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden">
-      <div style="position:absolute;right:-10px;top:-10px;width:60px;height:60px;border-radius:50%;background:#fff;opacity:.1"></div>
-      <div style="font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#A5B4FC;margin-bottom:4px">🏆 21K Buenos Aires</div>
-      <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#818CF8;margin-bottom:2px">23 ago 2026 · objetivo 6:10/km</div>
+    <div style="flex:1;background:var(--accent);border-radius:var(--radius);padding:20px 16px;position:relative;overflow:hidden;text-align:center">
+      <div style="position:absolute;right:-10px;top:-10px;width:80px;height:80px;border-radius:50%;background:#fff;opacity:.1"></div>
+      <div style="font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#A5B4FC;margin-bottom:6px">🏆 21K Buenos Aires</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#818CF8;margin-bottom:4px">23 ago 2026 · objetivo 6:10/km</div>
       ${countdownHTML(d2,true)}
     </div>
   </div>`;
