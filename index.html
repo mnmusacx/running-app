@@ -947,7 +947,7 @@ async function loadHoyAI(session, recent){
 
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':mejAiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':mejAiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,
         system:`Sos un coach de running. Respondés en español, muy conciso (máximo 5 oraciones). Sin listas, sin asteriscos, sin títulos. Un párrafo directo con el consejo más importante para el entrenamiento de hoy basado en el historial reciente del corredor. Específico, accionable, con números reales.`,
         messages:[{role:'user',content:`Sesión de hoy: ${sessionDesc}\n\nÚltimas carreras: ${JSON.stringify(recentSummary)}\n\nPerfil: Mariano, 33 años, 1.95m/81kg, objetivo 21K el 23/08/2026.\n\nDame el consejo más importante y concreto para que aproveche al máximo esta sesión de hoy.`}]
@@ -1200,7 +1200,7 @@ async function scanImage(){
   if(!apiKey){ out.innerHTML=`<div class="card" style="font-size:13px;color:var(--text2);padding:1rem">Configurá tu API key en <strong>Carreras → Mejoras</strong> para usar esta función.</div>`; return; }
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
         system:`Extraés datos de capturas de apps de running. Respondés SOLO con JSON válido, sin texto ni markdown:\n{"date":"YYYY-MM-DD","distance":km,"time":"hh:mm:ss","hr":bpm_o_null,"hrmax":bpm_o_null,"paceAvg":"m:ss_o_null","paceMax":"m:ss_o_null","cadence":num_o_null,"kcal":num_o_null,"splits":[],"zones":{"aero":min,"anaero":min,"intense":min}_o_null,"type":"easy|tempo|interval|long|race|recovery"}`,
         messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:scanB64}},{type:'text',text:'Extraé todos los datos de esta captura de running. Solo JSON.'}]}]
@@ -1811,7 +1811,7 @@ async function loadMejorasAI(force){
 
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':mejAiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':mejAiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,
         system:`Sos un coach de running experto analizando el historial real de un corredor. Respondés en español. 
 Generás un análisis de oportunidades de mejora CONCRETO y PERSONALIZADO basado en los datos reales. 
