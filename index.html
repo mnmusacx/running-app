@@ -781,6 +781,8 @@ function renderHoy(){
       const gymDayId={3:'mie',4:'jue',5:'vie'}[dow]||null;
       const gd=GYM_DAYS.find(g=>g.id===gymDayId);
       if(gd){
+        const gymDoneKey=`gym_done_${todayStr}`;
+        const gymDone=localStorage.getItem(gymDoneKey)==='1';
         html+=`<div style="background:${gd.color};border:1px solid ${gd.borderColor};border-radius:var(--radius);padding:10px 14px;margin-top:4px;font-size:12px;color:var(--text);line-height:1.55;margin-bottom:1rem">
           💡 ${gd.note}
         </div>`;
@@ -790,16 +792,25 @@ function renderHoy(){
             <div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">${b.title}</div>
             <div class="hoy-focus-card">
               ${b.exercises.map((e,i)=>`
-                <div class="hoy-focus-item">
-                  <div class="hoy-focus-icon" style="font-size:14px;min-width:20px;color:var(--text3);font-weight:700">${i+1}</div>
+                <div class="hoy-focus-item" ${gymDone?'style="opacity:.5"':''}>
+                  <div class="hoy-focus-icon" style="font-size:14px;min-width:20px;color:${gymDone?'var(--accent)':'var(--text3)'};font-weight:700">${gymDone?'✓':i+1}</div>
                   <div class="hoy-focus-body">
-                    <div class="hoy-focus-label">${e.name} <span style="font-weight:400;color:var(--text2);font-size:11px">· ${e.sets}</span></div>
+                    <div class="hoy-focus-label" style="${gymDone?'text-decoration:line-through':''}">${e.name} <span style="font-weight:400;color:var(--text2);font-size:11px">· ${e.sets}</span></div>
                     ${e.tip?`<div class="hoy-focus-text">${e.tip}</div>`:''}
                   </div>
                 </div>`).join('')}
             </div>
           </div>`;
         });
+        if(gymDone){
+          html+=`<div style="background:var(--accent-light);border:1px solid var(--accent-border);border-radius:var(--radius);padding:14px;text-align:center;margin-bottom:1rem">
+            <div style="font-size:16px;margin-bottom:4px">💪</div>
+            <div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)">¡Sesión completada!</div>
+            <button onclick="localStorage.removeItem('${gymDoneKey}');renderHoy()" style="margin-top:8px;font-size:10px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;text-decoration:underline">Desmarcar</button>
+          </div>`;
+        } else {
+          html+=`<button class="hoy-cargar-btn" onclick="localStorage.setItem('${gymDoneKey}','1');renderHoy()" style="margin-bottom:1rem">✓ Marcar sesión como completada</button>`;
+        }
         html+=`<button class="btn btn-sm" style="margin-bottom:1rem" onclick="document.querySelectorAll('.nav-tab')[3].click()">Ver rutina completa con tips →</button>`;
       } else {
         html+=`<div style="background:var(--bg2);border-radius:var(--radius);padding:12px 16px;margin-top:4px;font-size:13px;color:var(--text2)">Sesión de gym — revisá la pestaña Gym para ver la rutina.</div>`;
@@ -1973,6 +1984,42 @@ function renderGap(){
 
 /* ── Init ── */
 loadRuns();
+
+/* ── Swipe navigation ── */
+(function(){
+  const PAGES = ['hoy','tracker','plan','gym'];
+  let startX=0, startY=0, startTime=0;
+
+  document.addEventListener('touchstart', e=>{
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startTime = Date.now();
+  }, {passive:true});
+
+  document.addEventListener('touchend', e=>{
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    const dt = Date.now() - startTime;
+    // Solo swipe horizontal: dx > 50px, más horizontal que vertical, menos de 400ms
+    if(Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) || dt > 400) return;
+    const activePage = document.querySelector('.page.active')?.id?.replace('page-','');
+    const idx = PAGES.indexOf(activePage);
+    if(idx === -1) return;
+    const nextIdx = dx < 0 ? idx+1 : idx-1; // swipe izq = página siguiente
+    if(nextIdx < 0 || nextIdx >= PAGES.length) return;
+    const tabs = document.querySelectorAll('.nav-tab');
+    // Simular click en el tab correspondiente
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('page-'+PAGES[nextIdx]).classList.add('active');
+    tabs[nextIdx].classList.add('active');
+    const id=PAGES[nextIdx];
+    if(id==='hoy') renderHoy();
+    if(id==='gym') renderGym();
+    if(id==='plan') setTimeout(()=>{ if(!planRendered) renderPlan(); },50);
+    if(id==='tracker') setTimeout(renderChart,50);
+  }, {passive:true});
+})();
 </script>
 </body>
 </html>
