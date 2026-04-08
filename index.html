@@ -2004,25 +2004,17 @@ function renderGap(){
 ══════════════════════════════════════════ */
 const STRAVA_CLIENT_ID     = '222486';
 const STRAVA_CLIENT_SECRET = '5df02a8ec6af568c1767c8c82b0a460d468da8a3';
-const STRAVA_REFRESH_TOKEN = 'efb954d4e717d487700ef3c8d07cd544ed5db918';
 
-async function stravaGetToken(){
-  const cached = JSON.parse(localStorage.getItem('strava_token')||'{}');
-  if(cached.access_token && cached.expires_at > Date.now()/1000+60) return cached.access_token;
-  const r = await fetch('https://www.strava.com/oauth/token',{method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({client_id:STRAVA_CLIENT_ID, client_secret:STRAVA_CLIENT_SECRET,
-      refresh_token: cached.refresh_token||STRAVA_REFRESH_TOKEN, grant_type:'refresh_token'})
-  });
-  const d = await r.json();
-  if(!d.access_token) throw new Error('No se pudo renovar el token de Strava');
-  localStorage.setItem('strava_token', JSON.stringify(d));
-  return d.access_token;
+function getStravaToken(){
+  return localStorage.getItem('strava_access_token')||'';
+}
+
+function saveStravaToken(token){
+  localStorage.setItem('strava_access_token', token.trim());
 }
 
 function stravaTypeToLocal(type){
-  const map = {Run:'easy', VirtualRun:'easy'};
-  return map[type]||'easy';
+  return 'easy';
 }
 
 function stravaSecsToTime(secs){
@@ -2041,14 +2033,14 @@ function importStravaActivity(act){
   const run = {
     stravaId: act.id,
     date: act.start_date_local.split('T')[0],
-    type: stravaTypeToLocal(act.type),
+    type: 'easy',
     distance: +distKm.toFixed(2),
     time: stravaSecsToTime(secs),
     hr: act.average_heartrate ? Math.round(act.average_heartrate) : '',
     hrmax: act.max_heartrate ? Math.round(act.max_heartrate) : '',
     pacemax: '', cadence: act.average_cadence ? Math.round(act.average_cadence*2) : '',
     kcal: act.calories || '', rpe: '', splits: [], zones: null,
-    notes: act.name !== 'Afternoon Run' && act.name !== 'Morning Run' && act.name !== 'Evening Run' ? act.name : '',
+    notes: ['Afternoon Run','Morning Run','Evening Run','Night Run'].includes(act.name)?'':act.name,
     pace: paceRaw(distKm, secs)
   };
   runs.unshift(run);
@@ -2057,50 +2049,84 @@ function importStravaActivity(act){
   renderStrava();
 }
 
-async function renderStrava(forceRefresh){
+async function renderStrava(){
   const c = document.getElementById('strava-container');
   if(!c) return;
+  const token = getStravaToken();
+
+  // Sin token — mostrar campo para pegarlo
+  if(!token){
+    c.innerHTML=`<div class="card" style="margin-bottom:12px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Token de acceso de Strava</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6">
+        El token expira cada 6 horas. Para obtener uno nuevo andá a
+        <strong>strava.com/settings/api</strong>, hacé clic en "Mostrar" junto a "Tu token de acceso" y pegalo acá.
+      </p>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="strava-token-input" placeholder="415da0bdf3f894..." style="flex:1;font-size:13px" />
+        <button class="btn btn-primary" onclick="saveStravaToken(document.getElementById('strava-token-input').value);renderStrava()">Conectar</button>
+      </div>
+    </div>`;
+    return;
+  }
+
   c.innerHTML=`<div class="card" style="text-align:center;padding:2rem">
     <div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div>
     <span style="margin-left:8px;font-size:13px;color:var(--text2)">Conectando con Strava...</span></div></div>`;
+
   try{
-    const token = await stravaGetToken();
     const r = await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=20',
       {headers:{Authorization:`Bearer ${token}`}});
+
+    if(r.status===401){
+      localStorage.removeItem('strava_access_token');
+      c.innerHTML=`<div class="card" style="margin-bottom:12px">
+        <div style="font-size:12px;color:var(--red);font-weight:700;margin-bottom:8px">Token expirado</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6">
+          Andá a <strong>strava.com/settings/api</strong>, hacé clic en "Mostrar" junto a "Tu token de acceso" y pegá el nuevo token acá.
+        </p>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="strava-token-input" placeholder="Token nuevo..." style="flex:1;font-size:13px" />
+          <button class="btn btn-primary" onclick="saveStravaToken(document.getElementById('strava-token-input').value);renderStrava()">Reconectar</button>
+        </div>
+      </div>`;
+      return;
+    }
+
     const activities = await r.json();
     if(!Array.isArray(activities)) throw new Error('Error al obtener actividades');
-    const runs_only = activities.filter(a=>a.type==='Run'||a.type==='VirtualRun');
+    const runActivities = activities.filter(a=>a.type==='Run'||a.type==='VirtualRun');
 
     let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3)">${runs_only.length} carreras recientes</div>
-      <button class="btn btn-sm" onclick="renderStrava(true)">↻ Actualizar</button>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3)">${runActivities.length} carreras recientes</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="localStorage.removeItem('strava_access_token');renderStrava()">Cambiar token</button>
+        <button class="btn btn-sm" onclick="renderStrava()">↻</button>
+      </div>
     </div>`;
 
-    if(runs_only.length===0){
-      html+=`<div class="card" style="text-align:center;padding:2rem;color:var(--text2);font-size:13px">No hay actividades recientes en Strava.</div>`;
-    } else {
-      runs_only.forEach(act=>{
-        const distKm=(act.distance/1000).toFixed(2);
-        const pace=paceRaw(act.distance/1000, act.moving_time);
-        const already=stravaActivityExists(act.id);
-        const date=new Date(act.start_date_local);
-        const dateStr=`${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}/${String(date.getFullYear()).slice(-2)}`;
-        html+=`<div class="strava-activity">
-          <div style="font-size:20px">🟠</div>
-          <div class="strava-activity-info">
-            <div class="strava-activity-name">${act.name}</div>
-            <div class="strava-activity-meta">${dateStr} · ${distKm} km · ${stravaSecsToTime(act.moving_time)}${act.average_heartrate?' · '+Math.round(act.average_heartrate)+' bpm':''}</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-            <div class="strava-activity-pace">${paceStr(pace)}<span style="font-size:10px;font-weight:600;color:var(--text3)"> '/km</span></div>
-            ${already
-              ? `<span class="strava-already">✓ Importada</span>`
-              : `<button class="strava-import-btn" onclick='importStravaActivity(${JSON.stringify(act).replace(/'/g,"&#39;")})'>+ Importar</button>`
-            }
-          </div>
-        </div>`;
-      });
-    }
+    runActivities.forEach(act=>{
+      const distKm=(act.distance/1000).toFixed(2);
+      const pace=paceRaw(act.distance/1000, act.moving_time);
+      const already=stravaActivityExists(act.id);
+      const date=new Date(act.start_date_local);
+      const dateStr=`${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}/${String(date.getFullYear()).slice(-2)}`;
+      html+=`<div class="strava-activity">
+        <div style="font-size:20px">🟠</div>
+        <div class="strava-activity-info">
+          <div class="strava-activity-name">${act.name}</div>
+          <div class="strava-activity-meta">${dateStr} · ${distKm} km · ${stravaSecsToTime(act.moving_time)}${act.average_heartrate?' · '+Math.round(act.average_heartrate)+' bpm':''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <div class="strava-activity-pace">${paceStr(pace)}<span style="font-size:10px;font-weight:600;color:var(--text3)"> '/km</span></div>
+          ${already
+            ? `<span class="strava-already">✓ Importada</span>`
+            : `<button class="strava-import-btn" onclick='importStravaActivity(${JSON.stringify(act).replace(/'/g,"&#39;")})'>+ Importar</button>`
+          }
+        </div>
+      </div>`;
+    });
+
     c.innerHTML=html;
   }catch(e){
     c.innerHTML=`<div class="card" style="color:var(--red);padding:1rem;font-size:13px">Error: ${e.message}</div>`;
