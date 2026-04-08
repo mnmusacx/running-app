@@ -231,6 +231,18 @@ textarea { resize: vertical; min-height: 60px; }
 .gym-prog-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .1em; }
 .gym-prog-val { font-size: 13px; font-weight: 600; color: var(--slate); }
 
+/* ── Strava ── */
+.strava-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; border-radius: var(--radius); cursor: pointer; border: none; background: #FC4C02; color: #fff; font-family: inherit; transition: opacity .15s; margin-bottom: 12px; }
+.strava-btn:hover { opacity: .88; }
+.strava-activity { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: center; }
+.strava-activity-info { flex: 1; }
+.strava-activity-name { font-size: 13px; font-weight: 700; color: var(--slate); margin-bottom: 3px; }
+.strava-activity-meta { font-size: 11px; color: var(--text2); font-weight: 500; }
+.strava-activity-pace { font-size: 14px; font-weight: 800; color: var(--accent); white-space: nowrap; }
+.strava-import-btn { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--accent-border); background: var(--accent-light); color: var(--accent-dark); cursor: pointer; font-family: inherit; white-space: nowrap; }
+.strava-import-btn.done { background: var(--bg2); color: var(--text3); border-color: var(--border); cursor: default; }
+.strava-already { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+
 /* ── Mejoras ── */
 .mejora-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 10px; }
 .mejora-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -329,6 +341,7 @@ textarea { resize: vertical; min-height: 60px; }
     <button class="sub-tab" onclick="switchSub('tracker','evo')">Evolución</button>
     <button class="sub-tab" onclick="switchSub('tracker','gap');renderGap()">GAP objetivo</button>
     <button class="sub-tab" onclick="switchSub('tracker','mejoras');renderMejoras()">Mejoras</button>
+    <button class="sub-tab" onclick="switchSub('tracker','strava');renderStrava()">Strava</button>
     <button class="sub-tab" onclick="switchSub('tracker','scan')">Foto</button>
   </div>
 
@@ -351,6 +364,10 @@ textarea { resize: vertical; min-height: 60px; }
 
   <div id="tracker-gap" class="sub-content">
     <div id="gap-container"></div>
+  </div>
+
+  <div id="tracker-strava" class="sub-content">
+    <div id="strava-container"></div>
   </div>
 
   <div id="tracker-scan" class="sub-content">
@@ -1980,6 +1997,114 @@ function renderGap(){
       <div class="gap-row"><span class="gap-row-label">Pace objetivo plan</span><span>${paceStr(totalTargetPace)} '/km</span></div>
       <div class="gap-row"><span class="gap-row-label">GAP pace acumulado</span><span class="gap-chip ${paceChipClass(totalPaceGap)}">${fmtPaceGap(totalPaceGap)}</span></div>
     </div>`;
+}
+
+/* ══════════════════════════════════════════
+   STRAVA INTEGRATION
+══════════════════════════════════════════ */
+const STRAVA_CLIENT_ID     = '222486';
+const STRAVA_CLIENT_SECRET = '5df02a8ec6af568c1767c8c82b0a460d468da8a3';
+const STRAVA_REFRESH_TOKEN = 'efb954d4e717d487700ef3c8d07cd544ed5db918';
+
+async function stravaGetToken(){
+  const cached = JSON.parse(localStorage.getItem('strava_token')||'{}');
+  if(cached.access_token && cached.expires_at > Date.now()/1000+60) return cached.access_token;
+  const r = await fetch('https://www.strava.com/oauth/token',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({client_id:STRAVA_CLIENT_ID, client_secret:STRAVA_CLIENT_SECRET,
+      refresh_token: cached.refresh_token||STRAVA_REFRESH_TOKEN, grant_type:'refresh_token'})
+  });
+  const d = await r.json();
+  if(!d.access_token) throw new Error('No se pudo renovar el token de Strava');
+  localStorage.setItem('strava_token', JSON.stringify(d));
+  return d.access_token;
+}
+
+function stravaTypeToLocal(type){
+  const map = {Run:'easy', VirtualRun:'easy'};
+  return map[type]||'easy';
+}
+
+function stravaSecsToTime(secs){
+  const h=Math.floor(secs/3600), m=Math.floor((secs%3600)/60), s=secs%60;
+  if(h>0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+function stravaActivityExists(stravaId){
+  return runs.some(r=>r.stravaId===stravaId);
+}
+
+function importStravaActivity(act){
+  const distKm = act.distance/1000;
+  const secs = act.moving_time;
+  const run = {
+    stravaId: act.id,
+    date: act.start_date_local.split('T')[0],
+    type: stravaTypeToLocal(act.type),
+    distance: +distKm.toFixed(2),
+    time: stravaSecsToTime(secs),
+    hr: act.average_heartrate ? Math.round(act.average_heartrate) : '',
+    hrmax: act.max_heartrate ? Math.round(act.max_heartrate) : '',
+    pacemax: '', cadence: act.average_cadence ? Math.round(act.average_cadence*2) : '',
+    kcal: act.calories || '', rpe: '', splits: [], zones: null,
+    notes: act.name !== 'Afternoon Run' && act.name !== 'Morning Run' && act.name !== 'Evening Run' ? act.name : '',
+    pace: paceRaw(distKm, secs)
+  };
+  runs.unshift(run);
+  saveRuns();
+  renderTracker();
+  renderStrava();
+}
+
+async function renderStrava(forceRefresh){
+  const c = document.getElementById('strava-container');
+  if(!c) return;
+  c.innerHTML=`<div class="card" style="text-align:center;padding:2rem">
+    <div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <span style="margin-left:8px;font-size:13px;color:var(--text2)">Conectando con Strava...</span></div></div>`;
+  try{
+    const token = await stravaGetToken();
+    const r = await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=20',
+      {headers:{Authorization:`Bearer ${token}`}});
+    const activities = await r.json();
+    if(!Array.isArray(activities)) throw new Error('Error al obtener actividades');
+    const runs_only = activities.filter(a=>a.type==='Run'||a.type==='VirtualRun');
+
+    let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3)">${runs_only.length} carreras recientes</div>
+      <button class="btn btn-sm" onclick="renderStrava(true)">↻ Actualizar</button>
+    </div>`;
+
+    if(runs_only.length===0){
+      html+=`<div class="card" style="text-align:center;padding:2rem;color:var(--text2);font-size:13px">No hay actividades recientes en Strava.</div>`;
+    } else {
+      runs_only.forEach(act=>{
+        const distKm=(act.distance/1000).toFixed(2);
+        const pace=paceRaw(act.distance/1000, act.moving_time);
+        const already=stravaActivityExists(act.id);
+        const date=new Date(act.start_date_local);
+        const dateStr=`${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}/${String(date.getFullYear()).slice(-2)}`;
+        html+=`<div class="strava-activity">
+          <div style="font-size:20px">🟠</div>
+          <div class="strava-activity-info">
+            <div class="strava-activity-name">${act.name}</div>
+            <div class="strava-activity-meta">${dateStr} · ${distKm} km · ${stravaSecsToTime(act.moving_time)}${act.average_heartrate?' · '+Math.round(act.average_heartrate)+' bpm':''}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <div class="strava-activity-pace">${paceStr(pace)}<span style="font-size:10px;font-weight:600;color:var(--text3)"> '/km</span></div>
+            ${already
+              ? `<span class="strava-already">✓ Importada</span>`
+              : `<button class="strava-import-btn" onclick='importStravaActivity(${JSON.stringify(act).replace(/'/g,"&#39;")})'>+ Importar</button>`
+            }
+          </div>
+        </div>`;
+      });
+    }
+    c.innerHTML=html;
+  }catch(e){
+    c.innerHTML=`<div class="card" style="color:var(--red);padding:1rem;font-size:13px">Error: ${e.message}</div>`;
+  }
 }
 
 /* ── Init ── */
